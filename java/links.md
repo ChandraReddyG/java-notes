@@ -4,3 +4,6 @@
 
 # JVM Internals
 > https://www.cubrid.org/blog/understanding-jvm-internals/
+
+# Java Standards
+https://wiki.sei.cmu.edu/confluence/display/java/SEI+CERT+Oracle+Coding+Standard+for+Java
