@@ -318,6 +318,67 @@ Semaphore plays with a set of permits. Permit is taken and returned back by usin
 * Semaphore allows up to n (you get to choose n) threads of execution to access the resource at the same time.
 * Semaphore locks can be acquire and released in different threads.
 
+```java
+ private Semaphore sem = new Semaphore(10, true);
+    private int connections = 0;
+
+    private Connection() {
+    }
+
+    public static Connection getInstance() {
+        return instance;
+    }
+
+    public void connect() {
+        try {
+
+            // get permit decrease the sem value, if 0 wait for release
+            sem.acquire();
+
+            //if doConnect throws and exception is still releases the permit
+            //so we use a separate method here to increase the connections count
+            doConnect();
+
+        } catch (InterruptedException ignored) {
+        } finally {
+            //release permit, increase the sem value and activate waiting thread
+            sem.release();
+        }
+    }
+
+    public void doConnect() {
+        synchronized (this) { //atomic
+            connections++;
+        }
+        try {
+            //do your job
+            System.out.println("Current connections (max 10 allowed): " + connections);
+            Thread.sleep(2000);
+        } catch (InterruptedException ignored) {}
+        //when exit doConnect method decrement number of connections
+        synchronized (this) {//atomic
+            connections--;
+            System.out.println("I'm done " + Thread.currentThread().getName() + " Connection is released , connection count: " + connections);
+        }
+    }
+
+    //  Main class
+
+    public static void main(String[] args) {
+
+        ExecutorService executorService = Executors.newCachedThreadPool();
+
+        for (int i = 0; i < 200; i++) {
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    Connection.getInstance().connect();
+                }
+            });
+        }
+    }
+```
+
 ## LockSupport
 
 LockSupport is a class located in java.util.concurrent.locks package. Its neighbours are the classes and interfaces as: Lock,ReentrantLock or ReentrantWriteLock. Thanks to this neighbourhood it can be easily deduced that LockSupports is a kind of lock mechanism.
