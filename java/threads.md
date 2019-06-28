@@ -314,12 +314,12 @@ Semaphore plays with a set of permits. Permit is taken and returned back by usin
 
 **release():** Once the thread is finished using resource, it needs to return the permit. Using release() method of Semaphore, thread releases the permit back to Semaphore. 
 
-* Synchronized allows only one thread of execution to access the resource at the same time. 
+* Synchronized allows only one thread ∞of execution to access the resource at the same time. 
 * Semaphore allows up to n (you get to choose n) threads of execution to access the resource at the same time.
 * Semaphore locks can be acquire and released in different threads.
 
 ```java
- private Semaphore sem = new Semaphore(10, true);
+    private Semaphore sem = new Semaphore(10, true);
     private int connections = 0;
 
     private Connection() {
@@ -393,6 +393,71 @@ LockSupport provides an alternative for some of Thread's deprecated methods: sus
 
 **unpark(Thread)**- unblocks given Thread, i.e. the permit is made available again.
 
+```java
+    public static void main(String[] args) throws InterruptedException {
+        final Thread thread1   thread invoking this method
+            LockSupport.park();
+            try {
+                Thread.sleep(1_000L);
+                System.out.println("After Park");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        thread1.start();
+
+        Thread thread2 = new Thread(() -> {
+            System.out.println("In Thread-2 before Park");
+            try {
+                Thread.sleep(2_600L);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                Thread.currentThread().interrupt();
+            }
+            // unpark(Thread) releases thread specified
+            // in the parameter
+            LockSupport.unpark(thread1); // UnPark Thread
+            System.out.println("In Thread-2 after UnPark");
+        });
+        thread2.start();
+
+        thread1.join();
+        thread2.join();
+
+        // -------------------
+
+        System.out.println("============================");
+        Object lock = new Object();
+
+        Thread thread3 = new Thread(() -> {
+            // park() blocks thread invoking this method
+            LockSupport.park(lock);
+            try {
+                Thread.sleep(1_000L);
+                System.out.println("After Park with params - 1");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        thread3.start();
+
+        Thread thread4 = new Thread(() -> {
+            // park() blocks thread invoking this method
+            LockSupport.park(lock);
+            try {
+                Thread.sleep(1_000L);
+                System.out.println("After Park with params - 2");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+        thread4.start();
+
+        LockSupport.unpark(thread3);
+        LockSupport.unpark(thread4);
+
+    }
+```
 
 ## lock vs Monitor vs Mutex vs Semaphore
 
