@@ -47,3 +47,16 @@ Java 8 allows you to add non-abstract methods in interfaces. These methods must 
 
 Default methods enable you to add new functionality to the interfaces of your libraries and ensure binary compatibility with code written for older versions of those interfaces.
 
+## Type Inference
+Inference means - conclusion reached on the basis of evidence and reasoning.
+Type inference is a Java compiler's ability to look at each method invocation and corresponding declaration to determine the type argument (or arguments) that make the invocation applicable
+
+```
+List<Integer> intList = Arrays.asList(5, 2, 4, 2, 1);
+Collections.sort(intList, (a, b) -> a.compareTo(b));
+ 
+List<String> strList = Arrays.asList("Red", "Blue", "Green");
+Collections.sort(strList, (a, b) -> a.compareTo(b));
+```
+
+The compiler performs invocation type inference analysis to determine the type arguments. The expected target types are also used in this analysis. It deduces the arguments in the three instances as ArrayList<String>, ArrayList<Integer> and ArrayList<Number>.
