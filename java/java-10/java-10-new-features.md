@@ -8,6 +8,15 @@ var data = new ArrayList<>();
 ```
 Ref: http://openjdk.java.net/projects/amber/LVTIFAQ.html
 
+## Unmodifiable Collections
+```
+List<Integer> copyList = List.copyOf(someIntList);
+
+List<Integer> evenList = someIntList.stream()
+      .filter(i -> i % 2 == 0)
+      .collect(Collectors.toUnmodifiableList());
+```
+
 ## JDK Enhancement Proposal in JDK 10
 
 * (JEP 286) Local-Variable Type Inference: Enhances the Java Language to extend type inference to declarations of local variables with initializers. It introduces var to Java, something that is common in other languages.
