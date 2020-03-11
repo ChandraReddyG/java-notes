@@ -29,7 +29,7 @@
 * Graal included as experimental JIT compiler
 * Several internal, JVM and platform level changes
 
-![atomic-sync-process.png](images/atomic-sync-process.png)
+![openjdk-oraclejdk.png](images/openjdk-oraclejdk.png)
 
 ### New in Java 9
 
