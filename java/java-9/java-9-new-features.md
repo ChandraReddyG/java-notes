@@ -73,3 +73,21 @@ try (new MyAutoCloseable() { }.finalWrapper.finalCloseable) {
    // do some stuff with finalCloseable
 } catch (Exception ex) { }
 ```
+## Java Compact Strings
+Strings in Java are internally represented by a char[] containing the characters of the String. And, every char is made up of 2 bytes because Java internally uses UTF-16.
+
+For instance, if a String contains a word in the English language, the leading 8 bits will all be 0 for every char, as an ASCII character can be represented using a single byte.
+
+Many characters require 16 bits to represent them but statistically most require only 8 bits — LATIN-1 character representation. So, there is a scope to improve the memory consumption and performance.
+
+What's also important is that Strings typically usually occupy a large proportion of the JVM heap space. And, because of the way they're stored by the JVM, in most cases, a String instance can take up double space it actually needs.
+
+Java 9 has brought the concept of compact Strings back.
+
+This means that whenever we create a String if all the characters of the String can be represented using a byte — LATIN-1 representation, a byte array will be used internally, such that one byte is given for one character.
+
+In other cases, if any character requires more than 8-bits to represent it, all the characters are stored using two bytes for each — UTF-16 representation.
+
+So basically, whenever possible, it’ll just use a single byte for each character.
+
+Ref: https://www.baeldung.com/java-9-compact-string
