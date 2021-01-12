@@ -5,6 +5,12 @@
 * A CSS selector that defines how the component is used in a template
 * Optionally, CSS styles applied to the template
 
+The @Component decorator identifies the class immediately below it as a component class, and specifies its metadata.
+
+The metadata for a component tells Angular where to get the major building blocks that it needs to create and present the component and its view. In particular, it associates a template with the component, either directly with inline code, or by reference. Together, the component and its template describe a view.
+
+In addition to containing or pointing to the template, the @Component metadata configures, for example, how the component can be referenced in HTML and what services it requires.
+
 ![component.png](images/component.png)
 
 ## Creating a component using the Angular CLI
