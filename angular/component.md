@@ -22,6 +22,7 @@ By default, this command creates the following:
 
 Where <component-name> is the name of your component.
 
+Example component
 ```
 import { Component } from '@angular/core';
 
@@ -35,4 +36,7 @@ export class AppComponent {
 }
 
 ```
+
+![component-explain.png](images/component-explain.png)
+
 
