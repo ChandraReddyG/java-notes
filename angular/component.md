@@ -57,3 +57,28 @@ The following diagram shows the four forms of data binding markup. Each form has
 <div class="lightbox">
   <img src="images/databinding.png" alt="Data Binding" class="left">
 </div>
+
+## Pipes
+Angular pipes let you declare display-value transformations in your template HTML. A class with the @Pipe decorator defines a function that transforms input values to output values for display in a view.
+
+Angular defines various pipes, such as the date pipe and currency pipe; for a complete list, see the Pipes API list. You can also define new pipes.
+
+To specify a value transformation in an HTML template, use the pipe operator (|).
+
+{{interpolated_value | pipe_name}}
+
+
+## Directives
+Angular templates are dynamic. When Angular renders them, it transforms the DOM according to the instructions given by directives. A directive is a class with a @Directive() decorator.
+
+A component is technically a directive. However, components are so distinctive and central to Angular applications that Angular defines the @Component() decorator, which extends the @Directive() decorator with template-oriented features.
+
+In addition to components, there are two other kinds of directives: structural and attribute. Angular defines a number of directives of both kinds, and you can define your own using the @Directive() decorator.
+
+Just as for components, the metadata for a directive associates the decorated class with a selector element that you use to insert it into HTML. In templates, directives typically appear within an element tag as attributes, either by name or as the target of an assignment or a binding.
+
+## Attribute directives
+Attribute directives alter the appearance or behavior of an existing element. In templates they look like regular HTML attributes, hence the name.
+
+The ngModel directive, which implements two-way data binding, is an example of an attribute directive. ngModel modifies the behavior of an existing element (typically <input>) by setting its display value property and responding to change events.
+
