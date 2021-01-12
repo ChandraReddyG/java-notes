@@ -12,11 +12,6 @@ The architecture of an Angular application relies on certain fundamental concept
 
 * Components use services, which provide specific functionality not directly related to views. Service providers can be injected into components as dependencies, making your code modular, reusable, and efficient.
 
-## Modules
-
-There are two types of modules
-* ES 2015 Modules
-* Angular Modules
 
 Modules, components and services are classes that use decorators. These decorators mark their type and provide metadata that tells Angular how to use them.
 
@@ -25,6 +20,20 @@ The metadata for a component class associates it with a template that defines a 
 * The metadata for a service class provides the information Angular needs to make it available to components through dependency injection (DI).
 
 * An app's components typically define many views, arranged hierarchically. Angular provides the Router service to help you define navigation paths among views. The router provides sophisticated in-browser navigational capabilities.
+
+## Modules
+
+There are two types of modules
+* ES 2015 Modules
+* Angular Modules
+
+Angular NgModules differ from and complement JavaScript (ES2015) modules. An NgModule declares a compilation context for a set of components that is dedicated to an application domain, a workflow, or a closely related set of capabilities. An NgModule can associate its components with related code, such as services, to form functional units.
+
+Every Angular app has a root module, conventionally named AppModule, which provides the bootstrap mechanism that launches the application. An app typically contains many functional modules.
+
+Like JavaScript modules, NgModules can import functionality from other NgModules, and allow their own functionality to be exported and used by other NgModules. For example, to use the router service in your app, you import the Router NgModule.
+
+Organizing your code into distinct functional modules helps in managing development of complex applications, and in designing for reusability. In addition, this technique lets you take advantage of lazy-loading—that is, loading modules on demand—to minimize the amount of code that needs to be loaded at startup.
 
 ### ES 2015 Modules
 Anything we export is a module 
