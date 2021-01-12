@@ -4,6 +4,14 @@ For writing a angular application we will need below frameworks installed on our
 * NPM (Node Package Manager) https://www.npmjs.com/
 * Angular CLI (Auto generate boiler plate codes for us and also building, testing and deploying application) https://cli.angular.io/
 
+Angular is a platform and framework for building single-page client applications using HTML and TypeScript. Angular is written in TypeScript. It implements core and optional functionality as a set of TypeScript libraries that you import into your apps.
+
+The architecture of an Angular application relies on certain fundamental concepts. The basic building blocks of the Angular framework are Angular components that are organized into NgModules. NgModules collect related code into functional sets; an Angular app is defined by a set of NgModules. An app always has at least a root module that enables bootstrapping, and typically has many more feature modules.
+
+* Components define views, which are sets of screen elements that Angular can choose among and modify according to your program logic and data.
+
+* Components use services, which provide specific functionality not directly related to views. Service providers can be injected into components as dependencies, making your code modular, reusable, and efficient.
+
 ## Modules
 
 There are two types of modules
