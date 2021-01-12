@@ -34,9 +34,9 @@ export class AppModule { }
 The @NgModule decorator identifies AppModule as an NgModule class. @NgModule takes a metadata object that tells Angular how to compile and launch the application.
 
 * declarations : The module's declarations array tells Angular which components belong to that module. As you create more components, add them to declarations.
-* imports—import: The module's imports array appears exclusively in the @NgModule metadata object. It tells Angular about other NgModules that this particular module needs to function properly.
-* providers—the service providers.
-* bootstrap—the root component that Angular creates and inserts into the index.html host web page.
+* imports : The module's imports array appears exclusively in the @NgModule metadata object. It tells Angular about other NgModules that this particular module needs to function properly.
+* providers: The providers array is where you list the services the app needs. When you list services here, they are available app-wide. You can scope them when using feature modules and lazy loading.
+* bootstrap : The application launches by bootstrapping the root AppModule, which is also referred to as an entryComponent. Among other things, the bootstrapping process creates the component(s) listed in the bootstrap array and inserts each one into the browser DOM.
 
 ## declarations
 The module's declarations array tells Angular which components belong to that module. As you create more components, add them to declarations.
