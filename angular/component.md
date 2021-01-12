@@ -39,4 +39,6 @@ export class AppComponent {
 
 ![component-explain.png](images/component-explain.png)
 
+* Decorators mark their type and provide metadata that tells Angular how to use them
+
 
