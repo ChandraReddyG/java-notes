@@ -5,6 +5,8 @@
 * A CSS selector that defines how the component is used in a template
 * Optionally, CSS styles applied to the template
 
+![component.png](images/component.png)
+
 ## Creating a component using the Angular CLI
 To create a component using the Angular CLI:
 
