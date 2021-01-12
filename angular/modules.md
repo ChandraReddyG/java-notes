@@ -33,7 +33,48 @@ export class AppModule { }
 
 The @NgModule decorator identifies AppModule as an NgModule class. @NgModule takes a metadata object that tells Angular how to compile and launch the application.
 
-* declarations—this application's lone component.
-* imports—import BrowserModule to have browser specific services such as DOM rendering, sanitization, and location.
+* declarations : The module's declarations array tells Angular which components belong to that module. As you create more components, add them to declarations.
+* imports—import: BrowserModule to have browser specific services such as DOM rendering, sanitization, and location.
 * providers—the service providers.
 * bootstrap—the root component that Angular creates and inserts into the index.html host web page.
+
+## declarations
+The module's declarations array tells Angular which components belong to that module. As you create more components, add them to declarations.
+
+You must declare every component in exactly one NgModule class. If you use a component without declaring it, Angular returns an error message.
+
+The declarations array only takes declarables. Declarables are components, directives and pipes. All of a module's declarables must be in the declarations array. Declarables must belong to exactly one module. The compiler emits an error if you try to declare the same class in more than one module.
+
+These declared classes are visible within the module but invisible to components in a different module unless they are exported from this module and the other module imports this one.
+
+```
+declarations: [
+  YourComponent,
+  YourPipe,
+  YourDirective
+],
+```
+
+### Using directives with @NgModule
+Use the declarations array for directives. To use a directive, component, or pipe in a module, you must do a few things:
+
+* Export it from the file where you wrote it.
+* Import it into the appropriate module.
+* Declare it in the @NgModule declarations array.
+
+Those three steps look like the following. In the file where you create your directive, export it. The following example, named ItemDirective is the default directive structure that the CLI generates in its own file, item.directive.ts:
+
+Example - item.directive.ts
+```
+import { Directive } from '@angular/core';
+
+@Directive({
+  selector: '[appItem]'
+})
+export class ItemDirective {
+// code goes here
+  constructor() { }
+
+}
+```
+
