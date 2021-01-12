@@ -33,7 +33,7 @@ export class AppModule { }
 
 The @NgModule decorator identifies AppModule as an NgModule class. @NgModule takes a metadata object that tells Angular how to compile and launch the application.
 
-declarations—this application's lone component.
-imports—import BrowserModule to have browser specific services such as DOM rendering, sanitization, and location.
-providers—the service providers.
-bootstrap—the root component that Angular creates and inserts into the index.html host web page.
+* declarations—this application's lone component.
+* imports—import BrowserModule to have browser specific services such as DOM rendering, sanitization, and location.
+* providers—the service providers.
+* bootstrap—the root component that Angular creates and inserts into the index.html host web page.
