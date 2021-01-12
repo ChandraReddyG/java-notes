@@ -22,3 +22,17 @@ By default, this command creates the following:
 
 Where <component-name> is the name of your component.
 
+```
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.less']
+})
+export class AppComponent {
+  title = 'konnect-test';
+}
+
+```
+
