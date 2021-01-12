@@ -18,6 +18,14 @@ There are two types of modules
 * ES 2015 Modules
 * Angular Modules
 
+Modules, components and services are classes that use decorators. These decorators mark their type and provide metadata that tells Angular how to use them.
+
+The metadata for a component class associates it with a template that defines a view. A template combines ordinary HTML with Angular directives and binding markup that allow Angular to modify the HTML before rendering it for display.
+
+* The metadata for a service class provides the information Angular needs to make it available to components through dependency injection (DI).
+
+* An app's components typically define many views, arranged hierarchically. Angular provides the Router service to help you define navigation paths among views. The router provides sophisticated in-browser navigational capabilities.
+
 ### ES 2015 Modules
 Anything we export is a module 
 
