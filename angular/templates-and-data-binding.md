@@ -108,5 +108,100 @@ The event binding listens for the button's click events and calls the component'
 
 ![event-binding.svg](images/event-binding.svg)
 
+### EventEmitter
+EventEmitter can be used if we want to send value from one component to another. Below is the example
+
+Let's says we have app-child component like:
+
+app-child-template.ts
+```
+@Component({
+    selector: 'app-child',
+    templateUrl: './app-child-template.html'    
+})
+export class AppChildComponent implements OnInit {
+    counter = 0;
+
+    @Output() counterValueEvent = new EventEmitter();
+
+    constructor() { }
+
+    ngOnInit(): void { }
+
+    handleclick() {
+        console.log('clicked');
+
+        this.counter = this.counter + 1;
+        this.counterValueEvent.emit(this.counter);
+    }
+}
+```
+
+app-child-template.html
+```
+<button class='btn btn-primary' (click)="handleclick()">Cliick Me</button>
+```
+
+If we want to just handle the click event then on click 'handleclick' function will get executed. But let's say we want to send value of counter to another component.
+
+To send the value to another component first we need to add EventEmitter like below. This will raise event using **this.counterValueEvent.emit(this.counter);**
+```
+@Output() counterValueEvent = new EventEmitter();
+```
+
+**Now how do we handle the event on other side?**
+
+Let's say we want to add the counter value in productList Template and Component.
+
+product-list-component.html
+```
+<div *ngIf="products && products.length">
+    <div *ngFor="let product of products">
+        <div>{{product.id}}</div>
+        <div>{{product.name}}</div>
+    </div>
+</div>
+<app-child (counterValueEvent)='displayCount($event)'></app-child>
+```
+Above we have done following changes:
+* Added <app-child> directive which has event listener. So it listens to counterValueEvent and passes it to displayCount function in component.
+
+
+product-list-component.ts
+```
+@Component({
+    selector: 'product-list',    
+    templateUrl: './product-list-template.html'
+})
+export class ProductList implements OnInit {
+
+    products: any[] = [
+        {
+            "id": 1,
+            "name": "Bike"
+        },
+        {
+            "id": 2,
+            "name": "Monitor"
+        }
+    ];
+
+    constructor() { }
+
+    ngOnInit(): void { }
+
+    displayCount(count: any) {
+        console.log(count);
+    }
+
+}
+```
+
+In Above code displayCount function handles the event value and prints it in console.
+
+
+
+
+
 ## Two Way Binding
 
