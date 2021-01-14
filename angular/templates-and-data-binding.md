@@ -106,7 +106,7 @@ To bind to an event you use the Angular event binding syntax. This syntax consis
 ```
 The event binding listens for the button's click events and calls the component's onSave() method whenever a click occurs.
 
-
+![event-binding.svg](images/event-binding.svg)
 
 ## Two Way Binding
 
