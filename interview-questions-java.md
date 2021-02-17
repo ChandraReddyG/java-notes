@@ -88,5 +88,6 @@ The only times finally won't be called are:
 * If the host system dies; e.g., power failure, hardware error, OS panic, et cetera
 * If the finally block is going to be executed by a daemon thread and all other non-daemon threads exit before finally is called
     
-## 
+## What is reflection and why is it useful?
+Reflection is used to describe code that is able to inspect other code in the same system.
 
