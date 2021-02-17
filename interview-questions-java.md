@@ -70,5 +70,23 @@ When the JVM is started, three class loaders are used:
 2. 2. Extension Classloader: Loads jar files from folder. 
 3. 3. System/Application Classloader: Loads jar files from path specified in the CLASSPATH environment variable.
 
+## What are static initializers and when would you use them?
+A static initializer gives you the opportunity to run code during the initial loading of a class and it guarantees that this code will only run once and will finish running before your class can be accessed in any way.
 
+They are useful for performing initialization of complex static objects or to register a type with a static registry, as JDBC drivers do.
+
+## Does “finally” always execute in Java?
+Not in a scenario such as an invocation of a “System.exit()” function, an infinite loop, or system crash, etc.
+
+The only times finally won't be called are:
+
+* If you invoke System.exit()
+* If you invoke Runtime.getRuntime().halt(exitStatus)
+* If the JVM crashes first
+* If the JVM reaches an infinite loop (or some other non-interruptable, non-terminating statement) in the try or catch block
+* If the OS forcibly terminates the JVM process; e.g., kill -9 <pid> on UNIX
+* If the host system dies; e.g., power failure, hardware error, OS panic, et cetera
+* If the finally block is going to be executed by a daemon thread and all other non-daemon threads exit before finally is called
+    
+## 
 
