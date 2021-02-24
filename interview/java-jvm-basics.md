@@ -157,6 +157,9 @@ The parallel garbage collector uses multiple threads to perform the young genert
 
 On a host with a single CPU the default garbage collector is used even if the parallel garbage collector has been requested. On a host with two CPUs the parallel garbage collector generally performs as well as the default garbage collector and a reduction in the young generationgarbage collector pause times can be expected on hosts with more than two CPUs. The Parallel GC comes in two flavors.
 
+Young generation has multiple threads.
+Old generation has only one thread (Multiple if we use -XX:+UseParallelOldGC).
+
 #### Usage Cases
 The Parallel collector is also called a throughput collector. Since it can use multilple CPUs to speed up application throughput. This collector should be used when a lot of work need to be done and long pauses are acceptable. For example, batch processing like printing reports or bills or performing a large number of database queries.
 
@@ -165,6 +168,11 @@ With this command line option you get a multi-thread young generation collector 
 
 Here is a sample command line for starting the Java2Demo:
 java -Xmx12m -Xms3m -Xmn1m -XX:PermSize=20m -XX:MaxPermSize=20m -XX:+UseParallelGC -jar c:\javademos\demo\jfc\Java2D\Java2demo.jar
+
+-XX:+UseParallelOldGC
+With the -XX:+UseParallelOldGC option, the GC is both a multithreaded young generation collector and multithreaded old generation collector. It is also a multithreaded compacting collector. HotSpot does compaction only in the old generation. Young generation in HotSpot is considered a copy collector; therefore, there is no need for compaction.
+
+Compacting describes the act of moving objects in a way that there are no holes between objects. After a garbage collection sweep, there may be holes left between live objects. Compacting moves objects so that there are no remaining holes. It is possible that a garbage collector be a non-compacting collector. Therefore, the difference between a parallel collector and a parallel compacting collector could be the latter compacts the space after a garbage collection sweep. The former would not.
 
 ### The Concurrent Mark Sweep (CMS) Collector
 
@@ -308,6 +316,10 @@ Core components of the JRE include:
 
 We discussed the JVM in the above section. Here we will focus on the core classes and support files.
 
+### Class loading subsystem
+
+![Marking](images/jcm-class-loading-subsystem.jpg)
+
 ### Bootstrap Classes
 
 We’ll find bootstrap classes under jre/lib/. This path is also known as the bootstrap classpath. It includes:
@@ -417,4 +429,65 @@ OnOutOfMemoryError is used to issue emergency commands to be executed in case of
 > -XX:OnOutOfMemoryError="shutdown -r"
 
 UseGCOverheadLimit is a policy that limits the proportion of the VM's time that is spent in GC before an OutOfMemory error is thrown
+
+## What is Garbage Collection log, Thread dump & Heap dump?
+
+![Java 8 Mamory Management](images/jvm-gc-thead-heap-files.jpg)
+
+## What is System.gc()?
+
+System.gc() is an API provided in java, Android, C# and other popular languages. When invoked it will make its best effort to clear accumulated unreferenced object (i.e. garbage) from memory.
+
+## What are the downsides of invoking System.gc()?
+
+When System.gc() or Runtime.getRuntime().gc() API calls are invoked from your application, stop-the-world Full GC events will be triggered. During stop-the-world full GCs, entire JVM will freeze (i.e. all the customer transaction that are in motion will be paused). Typically, these Full GCs take a long duration to complete. Thus, it has the potential to result in poor user experiences and your SLAs at unnecessary times when GC isn’t required to be run.
+
+JVM has sophisticated algorithm working all the time in the background doing all computations and calculations on when to trigger GC. When you invoke System.gc() call, all those computations will go for toss. What if JVM has triggered GC event just a millisecond back and once again from your application you are going invoking System.gc()? Because from your application you don’t know when GC ran.
+
+## What is JIT compiler?
+
+The Just-In-Time (JIT) compiler is a an essential part of the JRE i.e. Java Runtime Environment, that is responsible for performance optimization of java based applications at run time. Compiler is one of the key aspects in deciding performance of an application for both parties i.e. the end user and the application developer.
+
+Bytecode is one of the most important features of java that aids in cross-platform execution. Way of converting bytecode to native machine language for execution has a huge impact on the speed of it. These Bytecode have to be interpreted or compiled to proper machine instructions depending on the instruction set architecture. Moreover these can be directly executed if the instruction architecture is bytecode based. Interpreting the bytecode affects the speed of execution.
+
+In order to improve performance, JIT compilers interact with the Java Virtual Machine (JVM) at run time and compile suitable bytecode sequences into native machine code. While using a JIT compiler, the hardware is able to execute the native code, as compared to having the JVM interpret the same sequence of bytecode repeatedly and incurring an overhead for the translation process. This subsequently leads to performance gains in the execution speed, unless the compiled methods are executed less frequently.
+
+The JIT compiler doesn't compile every method that gets called because thousands of methods can be called at startup. Instead, OpenJ9 records the number of times a method is called. When the count reaches a pre-defined invocation threshold, JIT compilation is triggered. Once a method has been compiled by the JIT, the VM can call the compiled method rather than interpreting it.
+
+Java follows object oriented approach, as a result it consists of classes. These constitute of bytecode which are platform neutral and are executed by the JVM across diversified architectures.
+
+
+* At run time, the JVM loads the class files, the semantic of each is determined and appropriate computations are performed. The additional processor and memory usage during interpretation makes a Java application perform slowly as compared to a native application.
+
+* The JIT compiler aids in improving the performance of Java programs by compiling bytecode into native machine code at run time.
+
+* The JIT compiler is enabled throughout, while it gets activated, when a method is invoked. For a compiled method, the JVM directly calls the compiled code, instead of interpreting it. Theoretically speaking, If compiling did not require any processor time or memory usage, the speed of a native compiler and that of a Java compiler would have been same.
+
+* JIT compilation requires processor time and memory usage. When the java virtual machine first starts up, thousands of methods are invoked. Compiling all these methods can significantly affect startup time, even if the end result is a very good performance optimization.
+
+
+Ref: 
+* https://www.eclipse.org/openj9/docs/jit/
+* https://www.geeksforgeeks.org/just-in-time-compiler/
+* https://www.youtube.com/watch?v=sJVenujWGjs
+
+
+## What Is Ahead of Time Compilation? (From Java 9)
+
+AOT compilation is one way of improving the performance of Java programs and in particular the startup time of the JVM. The JVM executes Java bytecode and compiles frequently executed code to native code. This is called Just-in-Time (JIT) Compilation. The JVM decides which code to JIT compile based on profiling information collected during execution.
+
+While this technique enables the JVM to produce highly optimized code and improves peak performance, the startup time is likely not optimal, as the executed code is not yet JIT compiled. AOT aims to improve this so-called warming-up period. The compiler used for AOT is Graal.
+
+
+### JAOT Compilation
+
+> jaotc --output jaotCompilation.so JaotCompilation.class
+
+This produces the library jaotCompilation.so in the current directory.
+
+### Running the JAOT program
+
+> java -XX:AOTLibrary=./jaotCompilation.so JaotCompilation
+
+The argument -XX:AOTLibrary accepts a relative or full path to the library. Alternatively, we can copy the library to the lib folder in the Java home directory and only pass the name of the library.
 
