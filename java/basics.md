@@ -64,6 +64,49 @@ JVM basically guarantees that final fields of a class will be initialized before
 
 This is why, when creating an immutable object, you should always make all its fields final, even if they are not accessible via getter methods.
 
+## Static vs Non Static Initialization Blocks
+```java
+public class StaticNonStaticBlocks {
+
+    private final static String FINAL_STRING = "FINAL_STRING";
+    private static String STATIC_STRING = "STATIC_STRING";
+
+    static {
+        System.out.println("In static block");
+    }
+
+    {
+        System.out.println("In non static block");
+        beforeConstructor();
+    }
+
+    public StaticNonStaticBlocks() {
+        System.out.println("In constructor");
+    }
+
+    public void beforeConstructor() {
+        System.out.println("In beforeConstructor");
+    }
+
+    public static void main(String[] args) {
+        StaticNonStaticBlocks si = new StaticNonStaticBlocks();
+    }
+}
+
+// Output
+// In static block
+// In non static block
+// In beforeConstructor
+// In constructor
+```
+Static block will be called first, then the non static block then the beforeConstructor method and then the constructor.
+
+The code in the "static" section(s) will be executed at class load time, before any instances of the class are constructed (and before any static methods are called from elsewhere). That way you can make sure that the class resources are all ready to use.
+
+It's also possible to have non-static initializer blocks. Those act like extensions to the set of constructor methods defined for the class. They look just like static initializer blocks, except the keyword "static" is left off.
+
+The need for a non-static block is to execute any logic whenever an object is created irrespective of the constructor.
+
 ## Volatile keyword in Java
 
 Volatile specifier is used to indicate that a variable’s value can be modified by multiple threads simultaneously.
