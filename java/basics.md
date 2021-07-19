@@ -58,7 +58,7 @@
 * Binary numeric literals (e.g. 0b10100101).
 * Support for dynamically typed languages in the Java Virtual Machine (JVM).
 
-## What special guarantees does the JMM hold for final fields of a class?
+## What special guarantees does the JVM hold for final fields of a class?
 
 JVM basically guarantees that final fields of a class will be initialized before any thread gets hold of the object. Without this guarantee, a reference to an object may be published, i.e. become visible, to another thread before all the fields of this object are initialized, due to reorderings or other optimizations. This could cause racy access to these fields.
 
