@@ -170,3 +170,57 @@ Function<Integer, Integer> dbl = (v) -> v + v;
 dbl.apply(5); // Will return 10
 ```
 
+## Predicate
+
+The Java Predicate interface, java.util.function.Predicate, represents a simple function that takes a single value as parameter, and returns true or false. Here is how the Predicate functional interface definition looks:
+
+```java
+public interface Predicate<T> {
+    boolean test(T t);
+}
+```
+
+Sample implementation
+
+```java
+Predicate predicate = (value) -> value != null;
+```
+
+## UnaryOperator
+
+The Java UnaryOperator interface is a functional interface that represents an operation which takes a single parameter and returns a parameter of the same type. Here is an example of a Java UnaryOperator implementation:
+
+```java
+@FunctionalInterface
+public interface UnaryOperator<T> {
+ public <T> apply(T parameter);
+}
+```
+
+## BinaryOperator
+
+The Java BinaryOperator interface is a functional interface that represents an operation which takes two parameters and returns a single value. Both parameters and the return type must be of the same type.
+
+```java
+@FunctionalInterface
+public interface BinaryOperator<T, U, R> {
+    R apply(T t, U u);
+}
+```
+
+## Supplier
+
+The Java Supplier interface is a functional interface that represents an function that supplies a value of some sorts. The Supplier interface can also be thought of as a factory interface. Here is an example implementation of the Java Supplier interface:
+
+```java
+Supplier<Integer> supplier = () -> new Integer((int) (Math.random() * 1000D));
+```
+
+
+## Consumer
+
+The Java Consumer interface is a functional interface that represents an function that consumes a value without returning any value. A Java Consumer implementation could be printing out a value, or writing it to a file, or over the network etc. Here is an example implementation of the Java Consumer interface:
+
+```java
+Consumer<Integer> consumer = (value) -> System.out.println(value);
+```
