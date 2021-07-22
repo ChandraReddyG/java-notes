@@ -15,7 +15,7 @@ In a multithreaded application where the threads operate on non-volatile variabl
 
 ![thread-visibility-non-volatile.png](images/thread-visibility-non-volatile.png)
 
-With non-volatile variables there are no guarantees about when the Java Virtual Machine (JVM) reads data from main memory into CPU caches, or writes data from CPU caches to main memory. 
+With non-volatile variables there are no guarantees about when the Java Virtual Machine (JVM) reads data from main memory into CPU caches, or writes data from CPU caches to main memory.
 
 Imagine too, that only Thread 1 increments the counter variable, but both Thread 1 and Thread 2 may read the counter variable from time to time.
 
@@ -38,6 +38,7 @@ Actually, the visibility guarantee of Java volatile goes beyond the volatile var
 
 Ref: http://tutorials.jenkov.com/java-concurrency/volatile.html
 
+Ref: https://www.youtube.com/watch?v=WH5UvQJizH0
 ## Concurrency vs Parallelism
 
 * **Concurrency** : is when two or more tasks can start, run, and complete in overlapping time periods. It doesn't necessarily mean they'll ever both be running at the same instant. For example, multitasking on a single-core machine.

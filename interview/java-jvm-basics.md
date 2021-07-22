@@ -370,6 +370,8 @@ As a result, it does not interrupt the execution of the current program. After c
 
 Short form for Permanent Generation, PermGen is the memory area in Heap that is used by the JVM to store class and method objects. If your application loads lots of classes, PermGen utilization will be high. PermGen also holds ‘interned’ Strings
 
+In JDK 7, interned strings are no longer allocated in the permanent generation of the Java heap, but are instead allocated in the main part of the Java heap (known as the young and old generations), along with the other objects created by the application. This change will result in more data residing in the main Java heap, and less data in the permanent generation, and thus may require heap sizes to be adjusted. Most applications will see only relatively small differences in heap usage due to this change, but larger applications that load many classes or make heavy use of the String.intern() method will see more significant differences.
+
 PermGen (Permanent Generation) is a special heap space separated from the main memory heap.
 
 The JVM keeps track of loaded class metadata in the PermGen. Additionally, the JVM stores all the static content in this memory section. This includes all the static methods, primitive variables, and references to the static objects.
