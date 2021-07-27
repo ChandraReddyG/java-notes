@@ -1,5 +1,166 @@
 # Interview Questions
 
+## Classes
+
+Classes are the starting point of all objects, and we may consider them as the template for creating objects. A class would typically contain member fields, member methods, and a special constructor method.
+
+## Objects
+
+Objects are created from classes and are called instances of the class. We create objects from classes using their constructors:
+
+## Abstraction
+
+Abstraction is hiding complexities of implementation and exposing simpler interfaces.
+
+Abstraction occurs when a programmer hides any irrelevant data about an object or an instantiated class to reduce complexity and help users interact with a program more efficiently. The term abstraction vs encapsulation can be used to describe the process of hiding some of the information contained in an object or class, but it may also refer to the object itself. An abstraction is any named entity that contains a selection of data and behaviors specific to a particular usage of the originating entity.
+
+If we think about a typical computer, one can only see the external interface, which is most essential for interacting with it, while internal chips and circuits are hidden from the user.
+
+In OOP, abstraction means hiding the complex implementation details of a program, exposing only the API required to use the implementation. In Java, we achieve abstraction by using interfaces and abstract classes.
+
+## Encapsulation
+
+Encapsulation in OOP Meaning: In object-oriented computer programming languages, the notion of encapsulation (or OOP Encapsulation) refers to the bundling of data, along with the methods that operate on that data, into a single unit.
+
+Many programming languages use encapsulation frequently in the form of classes. A class is a program-code-template that allows developers to create an object that has both variables (data) and behaviors (functions or methods). A class is an example of encapsulation in computer science in that it consists of data and methods that have been bundled into a single unit.
+
+Encapsulation is hiding the state or internal representation of an object from the consumer of an API and providing publicly accessible methods bound to the object for read-write access. This allows for hiding specific information and controlling access to internal implementation.
+
+For example, member fields in a class are hidden from other classes, and they can be accessed using the member methods. One way to do this is to make all data fields private and only accessible by using the public member methods:
+
+```java
+public class Car {
+
+    // ...
+    private int speed;
+
+    public int getSpeed() {
+        return color;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+    // ...
+}
+```
+
+Here, the field speed is encapsulated using the private access modifier, and can only be accessed using the public getSpeed() and setSpeed() methods. We can read more about access modifiers in our access modifiers article.
+
+## Inheritance
+
+Inheritance is the mechanism that allows one class to acquire all the properties from another class by inheriting the class. We call the inheriting class a child class and the inherited class as the superclass or parent class.
+
+In Java, we do this by extending the parent class. Thus, the child class gets all the properties from the parent:
+
+```java
+public class Car extends Vehicle { 
+    //...
+}
+```
+
+When we extend a class, we form an IS-A relationship. The Car IS-A Vehicle. So, it has all the characteristics of a Vehicle.
+
+## Composition
+
+The composition is another mechanism provided by OOP for reusing implementation.
+
+In a nutshell, composition allows us to model objects that are made up of other objects, thus defining a “has-a” relationship between them.
+
+Furthermore, the composition is the strongest form of association, which means that the object(s) that compose or are contained by one object are destroyed too when that object is destroyed.
+
+## Inheritance and Composition (Is-a vs Has-a relationship) in Java
+
+Inheritance is an "is-a" relationship. Composition is a "has-a" relationship. inheritance is strongly coupled where as composition is loosely coupled in Java.
+
+
+
+Example of Inheritance
+
+```java
+class Animal{
+   String name="Orio";
+}
+class Dog extends Animal{
+   String type="Dog";
+   public static void main(String args[]){
+      Dog p=new Dog();
+      System.out.println("Name:"+p.name);
+      System.out.println("Type:"+p.type);
+   }
+}
+```
+
+Example of Composition
+
+```java
+public class Student {
+}
+public class College {
+   private Student student;
+   public College() {
+      this.student = new Student();
+   }
+}
+```
+## Polymorphism
+
+Polymorphism is the ability of an OOP language to process data differently depending on their types of inputs. In Java, this can be the same method name having different method signatures and performing different functions:
+
+In below example, we can see that the method read() has three different forms with different functionalities. This type of polymorphism is static or compile-time polymorphism and is also called method overloading.
+
+```java
+public class TextFile extends GenericFile {
+    //...
+ 
+    public String read() {
+        return this.getContent()
+          .toString();
+    }
+ 
+    public String read(int limit) {
+        return this.getContent()
+          .toString()
+          .substring(0, limit);
+    }
+ 
+    public String read(int start, int stop) {
+        return this.getContent()
+          .toString()
+          .substring(start, stop);
+    }
+}
+```
+
+There is also runtime or dynamic polymorphism, where the child class overrides the parent's method:
+
+```java
+public class GenericFile {
+    private String name;
+ 
+    //...
+ 
+    public String getFileInfo() {
+        return "Generic File Impl";
+    }
+}
+```
+
+A child class can extend the GenericFile class and override the getFileInfo() method:
+
+```java
+public class ImageFile extends GenericFile {
+    private int height;
+    private int width;
+ 
+    //... getters and setters
+     
+    public String getFileInfo() {
+        return "Image File Impl";
+    }
+}
+```
+
 ## How many ways we can create singleton object?
 
 ### Early Initialization

@@ -224,3 +224,8 @@ The Java Consumer interface is a functional interface that represents an functio
 ```java
 Consumer<Integer> consumer = (value) -> System.out.println(value);
 ```
+
+## Why do variables in lambdas have to be final or effectively final?
+
+In Java 8 with the addition of lambda expressions, a new concept effectively final variable has been added, which closely relates to lambda expressions.
+
