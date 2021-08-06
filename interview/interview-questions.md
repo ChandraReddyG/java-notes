@@ -47,7 +47,46 @@ public class Car {
 
 Here, the field speed is encapsulated using the private access modifier, and can only be accessed using the public getSpeed() and setSpeed() methods. We can read more about access modifiers in our access modifiers article.
 
-## Inheritance
+## Association
+
+Association is the weakest relationship between the three. It isn't a “has-a” relationship, none of the objects are parts or members of another.
+
+In Object-Oriented programming, an Object communicates to other Object to use functionality and services provided by that object.
+
+There are four different types of association: bi-directional, uni-directional, aggregation (includes composition aggregation) and reflexive. Bi-directional and uni-directional associations are the most common ones (i.e one to one, one to many, many to one and many to many).
+
+> Composition and Aggregation are the two forms of association.
+
+## Aggregation
+
+Aggregation is a specialized form of association where all objects have their own lifecycly but there exists an ownership as well. It's like parent child.
+
+Example: Library and Students. Here the student can exist without library, the relation between student and library is aggregation.
+
+## Composition
+
+The composition is specialize form of aggregation. It is a strong type of aggregation. Here the child object does not have it's own lifecycle and if parent object gets deleted then all it's child objects will also get deleted.
+
+Furthermore, the composition is the strongest form of association, which means that the object(s) that compose or are contained by one object are destroyed too when that object is destroyed.
+
+* When attempting to represent real-world whole-part relationships, e.g. an engine is a part of a car.
+* When the container is destroyed, the contents are also destroyed, e.g. a university and its departments.
+
+## Generalization
+
+Generalization is the process of extracting shared characteristics from two or more classes, and combining them into a generalized superclass. Shared characteristics can be attributes, associations, or methods.
+
+Animal is a generalization , Dog is specialization. Your superclass is a generalized class , but your subclass will be a specialized inheritor of your superclass. It becomes more specialized and less generalized as you move down the inheritance hierarchy.
+
+## Specialization
+
+If some new subclasses are created from an existing superclass to do specific job of the superclass, then it is known as specialization.
+
+Animal is a generalization , Dog is specialization. Your superclass is a generalized class , but your subclass will be a specialized inheritor of your superclass. It becomes more specialized and less generalized as you move down the inheritance hierarchy .
+
+![generalizationg-specialization.png](images/generalizationg-specialization.png)
+
+## Inheritance (IS a Relationship)
 
 Inheritance is the mechanism that allows one class to acquire all the properties from another class by inheriting the class. We call the inheriting class a child class and the inherited class as the superclass or parent class.
 
@@ -60,14 +99,6 @@ public class Car extends Vehicle {
 ```
 
 When we extend a class, we form an IS-A relationship. The Car IS-A Vehicle. So, it has all the characteristics of a Vehicle.
-
-## Composition
-
-The composition is another mechanism provided by OOP for reusing implementation.
-
-In a nutshell, composition allows us to model objects that are made up of other objects, thus defining a “has-a” relationship between them.
-
-Furthermore, the composition is the strongest form of association, which means that the object(s) that compose or are contained by one object are destroyed too when that object is destroyed.
 
 ## Inheritance and Composition (Is-a vs Has-a relationship) in Java
 
@@ -103,6 +134,7 @@ public class College {
    }
 }
 ```
+
 ## Polymorphism
 
 Polymorphism is the ability of an OOP language to process data differently depending on their types of inputs. In Java, this can be the same method name having different method signatures and performing different functions:
@@ -517,32 +549,151 @@ After calling the above line, the object will then be eligible for collection.
 
 We can change this relationship between the object and the garbage collector by explicitly wrapping it inside another reference object which is located inside java.lang.ref package.
 
-A **soft reference** can be created to the above object like this:
+**weak reference** this is the type of references that will be removed by the garbage collector on the next pass, if there are no other type references to the object.
 
+You can get an object value from the WeakReference until the GC decides to collect the object. As soon as the GC decides to do it (not after the GC finalize the object and clear an allocated memory), you will get the NULL from the WeakReference. This happens when the GC is just marking the object for a further processing. It is important to understand, that all finalization actions are executed only after this. When we look at the PhantomReference, we’ll return to this point.
+
+```java
+@Test
+public void testWeakAfterGC() {
+    // Arrange
+    String instance = new String("123");
+    WeakReference<String> reference = new WeakReference<>(instance);
+
+    // Act
+    instance = null;
+    String instanceFromWeakRef = reference.get();
+    System.out.println(instanceFromWeakRef); // Prints - 123 (i.e., we can get the object from weakreference back until the GC has not run)
+
+    System.gc();
+
+    // Asserts
+    Assertions.assertThat(reference.get()).isNull();
+}
 ```
-StringBuilder sb = new StringBuilder();
-SoftReference<StringBuilder> sbRef = new SoftReference<>(sb);
-sb = null;
+
+Java provides us the WeakHashMap data structure. It’s a something like a HashMap, which uses the WeakReference as a key of the Map. If a key of the WeakHashMap becomes garbage, its entry is removed automatically.
+
+
+**soft reference** can be created to the above object like this:
+
+The behavior of SoftReference is similar to WeakReference, but GC collect this kind of reference only when our application does not have enough of memory.
+
+```java
+@Test
+public void softTest() {
+    // Arrange
+    String instance = new String("123323");
+    SoftReference<String> softReference = new SoftReference<>(instance);
+    instance = null;
+    Assertions.assertThat(softReference).isNotNull();
+    Assertions.assertThat(softReference.get()).isNotNull();
+
+    // Act
+    GcUtils.tryToAllocateAllAvailableMemory(); 
+
+    // Asserts
+    Assertions.assertThat(softReference.get()).isNull();
+}
 ```
 
-In the above snippet, we have created two references to the StringBuilder object. The first line creates a strong reference sb and the second line creates a soft reference sbRef. The third line should make the object eligible for collection but the garbage collector will postpone collecting it because of sbRef.
+The GC collects our SoftReference before we get the OutOfMemoryError.
 
-The story will only change when memory becomes tight and the JVM is on the brink of throwing an OutOfMemory error. In other words, objects with only soft references are collected as a last resort to recover memory.
+This behavior is a good reason to use SoftReferences as a cache for a data that is difficult to build in memory.
 
-A **weak reference** can be created in a similar manner using WeakReference class. When sb is set to null and the StringBuilder object only has a weak reference, the JVM's garbage collector will have absolutely no compromise and immediately collect the object at the very next cycle.
+For example, a reading video or graphics data from a slow file storage. When your application has enough of memory, you can receive this data from the cache, but if application reaches of a memory limit, then the cache cleans. And now, you need restore this data on the next request.
 
-A **phantom reference** is similar to a weak reference and an object with only phantom references will be collected without waiting. However, phantom references are enqueued as soon as their objects are collected. We can poll the reference queue to know exactly when the object was collected.
+However in many cases you need to prefer a cache based on the LRU algorithm.
+
+**phantom reference**
+
+PhantomReferences can be used to notify you when some object is out of scope to do some resource cleanup. Remember that the object.finalize() method is not guaranteed to be called at the end of the life of an object, so if you need to close files or free resources, you can rely on Phantom.
+
+Phantom references have two major differences from soft and weak references.
+
+We can't get a referent of a phantom reference. The referent is never accessible directly through the API and this is why we need a reference queue to work with this type of references.
+
+The Garbage Collector adds a phantom reference to a reference queue after the finalize method of its referent is executed. It implies that the instance is still in the memory.
+
+What good are PhantomReferences? I'm only aware of two serious cases for them: first, they allow you to determine exactly when an object was removed from memory. They are in fact the only way to determine that. This isn't generally that useful, but might come in handy in certain very specific circumstances like manipulating large images: if you know for sure that an image should be garbage collected, you can wait until it actually is before attempting to load the next image, and therefore make the dreaded OutOfMemoryError less likely.
+
+Unlike finalize(), which makes an object reachable again, objects referable by a Reference object only can not be made reachable again.
+
+```java
+public class Foo {
+
+    private String bar;
+
+    public Foo(String bar) {
+        this.bar = bar;
+    }
+
+    public String foo() {
+        return bar;
+    }
+}
+```
+
+```java
+// initialize
+ReferenceQueue<Foo> queue = new ReferenceQueue<Foo>();
+ArrayList< PhantomReference<Foo>> list=new ArrayList<PhantomReference<Foo>>();
+
+for ( int i = 0; i < 10; i++) {
+    Foo o = new Foo( Integer.toOctalString( i));
+    list.add(new PhantomReference<Foo>(o, queue));
+}
+
+// make sure the garbage collector does it’s magic
+System.gc();
+
+// lets see what we’ve got
+Reference<? extends Foo> referenceFromQueue;
+for ( PhantomReference<Foo> reference : list)
+    System.out.println(reference.isEnqueued()); // This is print true
+
+while ( (referenceFromQueue = queue.poll()) != null) {
+    System.out.println(referenceFromQueue.get()); // This will print null 
+    referenceFromQueue.clear();
+}
+```
+
+To perform some postmortem cleanup on objects that garbage collector consider as unreachable, one can use finalization. This feature can be utilized to reclaim native resources associated with an object. However, finalizers have many problems associated.
+
+Firstly, we can’t foresee the call of finalize(). Since the Garbage Collection is unpredictable, the calling of finalize() cannot be predicted. There is no guarantee that the object will be garbage collected. The object might never become eligible for GC because it could be reachable through the entire lifetime of the JVM. It is also possible that no garbage collection actually runs from the time the object became eligible and before JVM stops.
+
+Secondly, Finalization can slowdown an application. Managing objects with a finalize() method takes more resources from the JVM than normal objects.
+
+In short, Finalize() isn't used often, and also there is no much reason to use it. If we have a class with methods like close() or cleanup() and that should be called once user done with the object then placing these methods call in finalize() can be used as a safety measure, but not necessary.
+
+People usually attempt to use finalize() method to perform postmortem cleanup on objects which usually not advisable. As mentioned earlier, Finalizers have an impact on the performance of the garbage collector since Objects with finalizers are slow to garbage collect.
+
+Phantom references are safe way to know an object has been removed from memory. For instance, consider an application that deals with large images. Suppose that we want to load a big image in to memory when large image is already in memory which is ready for garbage collected. In such case, we want to wait until the old image is collected before loading a new one. Here, the phantom reference is flexible and safely option to choose. The reference of the old image will be enqueued in the ReferenceQueue once the old image object is finalized. After receiving that reference, we can load the new image in to memory.
+
+Similarly we can use Phantom References to implement a Connection Pool. We can easily gain control over the number of open connections, and can block until one becomes available.
+
+https://github.com/mtumilowicz/phantom-reference
+
+**Reachability**
+
+Going from strongest to weakest, the different levels of reachability reflect the life cycle of an object. They are operationally defined as follows:
+
+* An object is strongly reachable if it can be reached by some thread without traversing any reference objects. A newly-created object is strongly reachable by the thread that created it.
+* An object is softly reachable if it is not strongly reachable but can be reached by traversing a soft reference.
+* An object is weakly reachable if it is neither strongly nor softly reachable but can be reached by traversing a weak reference. When the weak references to a weakly-reachable object are cleared, the object becomes eligible for finalization.
+* An object is phantom reachable if it is neither strongly, softly, nor weakly reachable, it has been finalized, and some phantom reference refers to it.
+  
+Finally, an object is unreachable, and therefore eligible for reclamation, when it is not reachable in any of the above ways.
 
 ## What Is a Stringbuilder and What Are Its Use Cases? What Is the Difference Between Appending a String to a Stringbuilder and Concatenating Two Strings with a + Operator? How Does Stringbuilder Differ from Stringbuffer?
 
 https://javapapers.com/java/java-string-vs-stringbuilder-vs-stringbuffer-concatenation-performance-micro-benchmark/
 
-
 ### StringBuilder
 
 First up is the humble StringBuilder. This class provides an array of String-building utilities that makes easy work of String manipulation.
 
-```
+```java
 StringBuilder stringBuilder = new StringBuilder(100);
 
 stringBuilder.append("Baeldung");

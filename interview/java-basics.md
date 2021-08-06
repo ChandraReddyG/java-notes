@@ -39,6 +39,29 @@ Actually, the visibility guarantee of Java volatile goes beyond the volatile var
 Ref: http://tutorials.jenkov.com/java-concurrency/volatile.html
 
 Ref: https://www.youtube.com/watch?v=WH5UvQJizH0
+
+### Volatile is Not Always Enough
+
+Even if the volatile keyword guarantees that all reads of a volatile variable are read directly from main memory, and all writes to a volatile variable are written directly to main memory, there are still situations where it is not enough to declare a variable volatile.
+
+Imagine if Thread 1 reads a shared counter variable with the value 0 into its CPU cache, increment it to 1 and not write the changed value back into main memory. Thread 2 could then read the same counter variable from main memory where the value of the variable is still 0, into its own CPU cache. Thread 2 could then also increment the counter to 1, and also not write it back to main memory. This situation is illustrated in the diagram below:
+
+![thread-visibility-volatile.png](images/thread-visibility-volatile.png)
+
+Thread 1 and Thread 2 are now practically out of sync. The real value of the shared counter variable should have been 2, but each of the threads has the value 1 for the variable in their CPU caches, and in main memory the value is still 0. It is a mess! Even if the threads eventually write their value for the shared counter variable back to main memory, the value will be wrong.
+
+### Main Differences
+
+**LOCKING:** The synchronized keyword is used to implement a lock-based threading model, whereas volatile and atomic variables give are non-lock based, which means threads do not require a lock to access these variables.
+
+**PERFORMANCE:** Atomic variables perform better than a synchronized keyword because atomic variables use concurrency support provided by hardware for various atomic operations, like Compare-And-Swap or read-modify-write. Note that synchronization uses a locking mechanism.
+
+**DEPENDENCY:** Volatile variable is generally used when the value of the variable does not depend on its previous value. Hence volatile variables are suitable for boolean variables. Whereas atomic variables can be used for variables where the value of the variable depends on its previous value like increment or decrement operations.
+
+![volatile-atomic-compare.png](images/volatile-atomic-compare.png)
+
+Reading and writing of volatile variables causes the variable to be read or written to main memory. Reading from and writing to main memory is more expensive than accessing the CPU cache. Accessing volatile variables also prevent instruction reordering which is a normal performance enhancement technique. Thus, you should only use volatile variables when you really need to enforce visibility of variables.
+
 ## Concurrency vs Parallelism
 
 * **Concurrency** : is when two or more tasks can start, run, and complete in overlapping time periods. It doesn't necessarily mean they'll ever both be running at the same instant. For example, multitasking on a single-core machine.
@@ -141,6 +164,30 @@ If compareAndSet() sets a new reference in the AtomicReference the compareAndSet
 
 ## AtomicStampedReference
 
+The AtomicStampedReference is designed to solve the A-B-A problem. The A-B-A problem is when a reference is changed from pointing to A, then to B and then back to A.
+
+When using compare-and-swap operations to change a reference atomically, and making sure that only one thread can change the reference from an old reference to a new, detecting the A-B-A situation is impossible.
+
+```java
+Initially: x = 0
+Thread1: read x // sees x = 0
+Thread2: x = 1
+Thread3: x = 0
+Thread1: read x // again sees x = 0, thinking that nothing has changed
+```
+
+To solve the above problem, we can maintain a stamp that should be updated(incremented) whenever a thread changes some state:
+
+```java
+Initially: x = 0, stamp = 0
+Thread1: read stamp // sees stamp = 0
+Thread2: x = 1, stamp = 1
+Thread3: x = 0, stamp = 2
+Thread1: read stamp,x // sees stamp = 2 which is != 0 hence do some processing
+```
+
+By using an AtomicStampedReference instead of an AtomicReference it is possible to detect the A-B-A situation. Thread 1 can copy the reference and stamp out of the AtomicStampedReference atomically using get(). If another thread changes the reference from A to B and then back to A, then the stamp will have changed.
+
 The AtomicStampedReference class provides an object reference variable which can be read and written atomically. By atomic is meant that multiple threads attempting to change the same AtomicStampedReference will not make the AtomicStampedReference end up in an inconsistent state.
 
 The AtomicStampedReference is different from the AtomicReference in that the AtomicStampedReference keeps both an object reference and a stamp internally. The reference and stamp can be swapped using a single atomic compare-and-swap operation, via the compareAndSet() method.
@@ -185,3 +232,105 @@ class Person {
     }
 }
 ```
+
+Ref: http://tutorials.jenkov.com/java-util-concurrent/atomicstampedreference.html
+
+## Java ThreadLocal
+
+The Java ThreadLocal class enables you to create variables that can only be read and written by the same thread. Thus, even if two threads are executing the same code, and the code has a reference to the same ThreadLocal variable, the two threads cannot see each other's ThreadLocal variables. Thus, the Java ThreadLocal class provides a simple way to make code thread safe that would not otherwise be so.
+
+### Using a ThreadLocal with a Thread Pool or ExecutorService
+
+If you plan to use a Java ThreadLocal from inside a task passed to a Java Thread Pool or a Java ExecutorService, keep in mind that you do not have any guarantees which thread will execute your task. However, if all you need is to make sure that each thread uses its own instance of some object, this is not a problem. Then you can use a Java ThreadLocal with a thread pool or ExecutorService just fine.
+
+Full ThreadLocal Example
+
+```java
+public class ThreadLocalExample {
+
+    public static void main(String[] args) {
+        MyRunnable sharedRunnableInstance = new MyRunnable();
+
+        Thread thread1 = new Thread(sharedRunnableInstance);
+        Thread thread2 = new Thread(sharedRunnableInstance);
+
+        thread1.start();
+        thread2.start();
+
+        thread1.join(); //wait for thread 1 to terminate
+        thread2.join(); //wait for thread 2 to terminate
+    }
+
+}
+```
+
+```java
+public class MyRunnable implements Runnable {
+
+    private ThreadLocal<Integer> threadLocal = new ThreadLocal<Integer>();
+
+    @Override
+    public void run() {
+        threadLocal.set( (int) (Math.random() * 100D) );
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+        }
+
+        System.out.println(threadLocal.get());
+    }
+}
+```
+
+### Example of threadlocal
+
+
+
+## InheritableThreadLocal
+
+The InheritableThreadLocal class is a subclass of ThreadLocal. Instead of each thread having its own value inside a ThreadLocal, the InheritableThreadLocal grants access to values to a thread and all child threads created by that thread. Here is a full Java InheritableThreadLocal example:
+
+```java
+public class InheritableThreadLocalBasicExample {
+
+    public static void main(String[] args) {
+
+        ThreadLocal<String> threadLocal = new ThreadLocal<>();
+        InheritableThreadLocal<String> inheritableThreadLocal =
+                new InheritableThreadLocal<>();
+
+        Thread thread1 = new Thread(() -> {
+            System.out.println("===== Thread 1 =====");
+            threadLocal.set("Thread 1 - ThreadLocal");
+            inheritableThreadLocal.set("Thread 1 - InheritableThreadLocal");
+
+            System.out.println(threadLocal.get());
+            System.out.println(inheritableThreadLocal.get());
+
+            Thread childThread = new Thread( () -> {
+                System.out.println("===== ChildThread =====");
+                System.out.println(threadLocal.get());
+                System.out.println(inheritableThreadLocal.get());
+            });
+            childThread.start();
+        });
+
+        thread1.start();
+
+        Thread thread2 = new Thread(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("===== Thread2 =====");
+            System.out.println(threadLocal.get());
+            System.out.println(inheritableThreadLocal.get());
+        });
+        thread2.start();
+    }
+}
+```
+

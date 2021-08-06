@@ -166,3 +166,54 @@ SELECT * FROM Example_tab WHERE Column_a + Column_b < 10;
 
 The optimizer can use a range scan for this query because the index is built on (column_a + column_b). Range scans typically produce fast response times if the predicate selects less than 15% of the rows of a large table. The optimizer can estimate how many rows are selected by expressions more accurately if the expressions are materialized in a function-based index. (Expressions of function-based indexes are represented as virtual columns and ANALYZE can build histograms on such columns.)
 
+## Covring Indexes
+
+If oracle can find all it's data for query within the index and doesn't need to do a full table scan then it's called covering index. It's dependent on the query.
+
+## Function Based Indexes
+
+When you create an index in Oracle the index is created over the actual values in the table. There are times though when it is useful to create an index not over the actual values in the table but a derived value. This is where function based indexes come in. With a function based index, you specify a function in your create index statement, then Oracle will run this function against each row of the table to create a derived value, and the index will be built over this derived value.
+
+Example:
+
+```sql
+  CREATE INDEX ix_student_lats_name ON students (UPPER(last_name));
+```
+
+Index is created on the value which is returned by the *UPPER(last_name)* function.
+
+```sql
+  SELECT * 
+  FROM students
+  WHERE UPPER(last_name) = UPPER('<user_input>')
+```
+
+Now the above query will be able to use the function based index *ix_student_lats_name* to get the records from above query. It's important to recognize though, that the function used in the index and the function used in the where clause must match exactly. Otherwise, the Oracle optimizer won't be able to match up the functions between the SQL statement and the index, and Oracle wouldn't be able to use the function-based index to perform this query.
+
+When choosing the function for a function based index, there are some criteria that you want to be aware of. First of all, you can use both built-in Oracle functions as well as user-defined functions. In our example, we're using the upper function, but you could use the lower function.
+
+You cannot use any aggregate functions to build a function-based index. These operate over multiple rows, not just one row. So they aren't allowed.
+
+## Index Compression
+
+Index Compression is another technique that can help you not just to save storage space on your database server. But can also in many cases provide a performance boost to your SQL statements. In a compressed index, what Oracle does is take repeated values at the front of the index key, and compress them into a single prefix value, so if you were to look at the leaf box of a compressed index, you wouldn't see the repeated value over and over again. But a prefix value that mapped to the repeated value that Oracle could look up when it was needed. How this helps from a performance standpoint is that now the index can take up significantly less space on disk. This means the amount of IO needed to read the index is reduced, and usually when we reduce the amount of IO we have a corresponding performance improvement.
+
+## Invisible Indexes
+
+One of the capabilities that Oracle provides is the ability to mark an index invisible. What this means is that the index will exist, but the Oracle Optimizer will not use the index in the execution of any SQL statements unless you set a session parameter to tell the Optimizer to consider invisible indexes.
+
+Let's say we have a new index. But before we make it generally available, we want to do some additional testing ourselves, and we don't want to impact the execution plans that anyone else is getting, or how their statements are running at this point. So what you can do is create the new index as invisible. Then you can log into Oracle, set the session parameter to allow your session to use individual indexes. And test the index out, while not impacting anyone else.
+
+## Indexing Costs and Overhead
+
+Something that you need to be mindful of is overindexing your database. Sometimes in technology, when we learn about a new feature or capability, we have a tendency to apply this capability to every problem we see whether it's a fit or not. There's an old interview question that I'll sometimes ask along these lines of, if indexing columns improves performance, why don't we index every column in a table? The answer is, because indexes are a separate data structure. They take up additional space on disk and they create 
+overhead in that the index has to be maintained for any DML operations against the table.
+
+## Why isn't Oracle Using My Index?
+
+* One of the first things you want to check when Oracle is not using an index is if you've included the leading edge. That is the first column of the index in your where of clause.
+* Any column that is always included with the where clause should be the first column in the index. Because if this first column is not present in our statement, Oracle won't use the index.
+* Another of the major reasons that an index does not get used is because of a lack of selectivity. If over 10% of the rows from the table with query. And when Oracle does the math, it will actually be more expensive to use the index than to just read the table directly in a full-table scan. So to solve this problem, we need to improve the selectivity. If our index has only one column in it and this column is not very selective on its own, then we need to add additional columns to the index so we have more distinct keys in our index and improve the selectivity of the index. This isn't enough, though. You also need to make sure to include those columns in the where clause of our SQL statement.
+* Using a Like Clause and a Leading Wildcard. the trailing wildcard is not a problem. The issue is the leading wildcard character. Whenever we have a leading wildcard carrier, like we see here, Oracle will not use an index on that column.
+* Data Type Conversion in the Where Clause. Now Oracle will not error, it will run the statement for you just fine. But it will not use any indexes that have been built over the course number of column due to this implicit data conversion that's going on. The solution to this problem is very easy. You want to make sure that the data types you use in your SQL statements always match up with the data types defined in the table.
+
