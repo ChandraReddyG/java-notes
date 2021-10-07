@@ -228,3 +228,22 @@ Consumer<Integer> consumer = (value) -> System.out.println(value);
 ## Why do variables in lambdas have to be final or effectively final?
 
 In Java 8 with the addition of lambda expressions, a new concept effectively final variable has been added, which closely relates to lambda expressions.
+
+## InvokeDynamic and Method Handles
+
+In Java 6 the bytecode specification has four method invocation instructions which correspond directly to Java method calls:
+
+* invokestatic which is used to invoke class methods
+* invokespecial which is used to invoke instance initialisation methods, when invoking methods in a superclass, and for private methods;
+* invokevirtual, the normal method invocation for an instance method
+* invokeinterface for interface methods
+
+Of these, the virtual and interface calls might serve the purposes of a dynamic language, but they are not flexible enough for the dynamic language runtime to bind the call site to a destination at runtime if the call site is not aware of the destination's interface prior to the bind. JSR 292 therefore adds a fifth method invocation, invokedynamic, which acts as a marker indicating that a dynamic language runtime specific call occurs at this point. At the JVM level, an invokedynamic instruction is used to call methods which have linkage and dispatch semantics defined by non-Java languages.
+
+Like the other four invocation instructions invokedynamic is statically typed, however an invokedynamic instruction is dynamically linked under program control using a method handle.
+
+Given any method M that I am able to invoke, the JVM provides me a way to produce a method handle H(M). I can use this handle later on, even after forgetting the name of M, to call M as often as I want. Moreover, if I provide this handle to other callers, they also can invoke M through the handle, even if they do not have access rights to call M by name. If the method is non-static, the method handle always takes the receiver as its first argument. If the method is virtual or interface, the method handle performs the dispatch on the receiver.
+ 
+
+A method handle will confess its type reflectively, as a series of Class values, through the type operation.
+

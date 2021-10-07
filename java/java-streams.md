@@ -1,8 +1,7 @@
 # Java Streams
 
 One of the best feature in Java SE 8 is lambda expressions. It is like anonymous method. Streams has simple building blocks (filtering, mapping, sorting, aggregation) It makes code more clear and easy to read.Code that's more readable is also less error prone, because maintainers are more likely to be able to correctly discern at first glance what the code does.
-
-# How it works
+# How it works?
 
 All stream computations share a common structure: They have a stream source, zero or more intermediate operations, and a single terminal operation. The elements of a stream can be object references (Stream<String>) or they can be primitive integers (IntStream), longs (LongStream), or doubles (DoubleStream).
 
