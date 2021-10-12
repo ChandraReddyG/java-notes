@@ -1,5 +1,114 @@
 # Java Multithreading & Concurrency
 
+## Concurrency vs Parallelism
+
+* **Concurrency** : is when two or more tasks can start, run, and complete in overlapping time periods. It doesn't necessarily mean they'll ever both be running at the same instant. For example, multitasking on a single-core machine.
+
+  A condition that exists when at least two threads are making progress. A more generalized form of parallelism that can include time-slicing as a form of virtual parallelism.
+
+* **Parallelism** : is when tasks literally run at the same time, e.g., on a multicore processor.
+
+A condition that arises when at least two threads are executing simultaneously.
+
+![concurrency-and-parallelism.jpg](images/concurrency-and-parallelism.jpg)
+
+## Java ThreadLocal
+
+The Java ThreadLocal class enables you to create variables that can only be read and written by the same thread. Thus, even if two threads are executing the same code, and the code has a reference to the same ThreadLocal variable, the two threads cannot see each other's ThreadLocal variables. Thus, the Java ThreadLocal class provides a simple way to make code thread safe that would not otherwise be so.
+
+### Using a ThreadLocal with a Thread Pool or ExecutorService
+
+If you plan to use a Java ThreadLocal from inside a task passed to a Java Thread Pool or a Java ExecutorService, keep in mind that you do not have any guarantees which thread will execute your task. However, if all you need is to make sure that each thread uses its own instance of some object, this is not a problem. Then you can use a Java ThreadLocal with a thread pool or ExecutorService just fine.
+
+Full ThreadLocal Example
+
+```java
+public class ThreadLocalExample {
+
+    public static void main(String[] args) {
+        MyRunnable sharedRunnableInstance = new MyRunnable();
+
+        Thread thread1 = new Thread(sharedRunnableInstance);
+        Thread thread2 = new Thread(sharedRunnableInstance);
+
+        thread1.start();
+        thread2.start();
+
+        thread1.join(); //wait for thread 1 to terminate
+        thread2.join(); //wait for thread 2 to terminate
+    }
+
+}
+```
+
+```java
+public class MyRunnable implements Runnable {
+
+    private ThreadLocal<Integer> threadLocal = new ThreadLocal<Integer>();
+
+    @Override
+    public void run() {
+        threadLocal.set( (int) (Math.random() * 100D) );
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+        }
+
+        System.out.println(threadLocal.get());
+    }
+}
+```
+
+### Example of threadlocal
+
+## InheritableThreadLocal
+
+The InheritableThreadLocal class is a subclass of ThreadLocal. Instead of each thread having its own value inside a ThreadLocal, the InheritableThreadLocal grants access to values to a thread and all child threads created by that thread. Here is a full Java InheritableThreadLocal example:
+
+```java
+public class InheritableThreadLocalBasicExample {
+
+    public static void main(String[] args) {
+
+        ThreadLocal<String> threadLocal = new ThreadLocal<>();
+        InheritableThreadLocal<String> inheritableThreadLocal =
+                new InheritableThreadLocal<>();
+
+        Thread thread1 = new Thread(() -> {
+            System.out.println("===== Thread 1 =====");
+            threadLocal.set("Thread 1 - ThreadLocal");
+            inheritableThreadLocal.set("Thread 1 - InheritableThreadLocal");
+
+            System.out.println(threadLocal.get());
+            System.out.println(inheritableThreadLocal.get());
+
+            Thread childThread = new Thread( () -> {
+                System.out.println("===== ChildThread =====");
+                System.out.println(threadLocal.get());
+                System.out.println(inheritableThreadLocal.get());
+            });
+            childThread.start();
+        });
+
+        thread1.start();
+
+        Thread thread2 = new Thread(() -> {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("===== Thread2 =====");
+            System.out.println(threadLocal.get());
+            System.out.println(inheritableThreadLocal.get());
+        });
+        thread2.start();
+    }
+}
+```
+
 ## What's a monitor in Java
 
 A monitor is mechanism to control concurrent access to an object.
@@ -231,7 +340,7 @@ private int count = 0;
 
 Threads can obtain read lock and write lock using ReadWriteLock. Read lock is for read only operations and write lock is for writes. Thread which acquires read lock can see updates made by the thread which previously released the write lock.
 
-ReadWriteLock is implemented by ReentrantReadWriteLock Class in java.util.concurrent.locks package.Multiple Threads can acquire multiple read Locks, but only a single Thread can acquire mutually-exclusive write Lock .Other threads requesting readLocks have to wait till the write Lock is released. 
+ReadWriteLock is implemented by ReentrantReadWriteLock Class in java.util.concurrent.locks package.Multiple Threads can acquire multiple read Locks, but only a single Thread can acquire mutually-exclusive write Lock .Other threads requesting readLocks have to wait till the write Lock is released.
 
 ```java
 public class SynchronizedHashMapWithReadWriteLock {
@@ -308,13 +417,13 @@ lock.unlock(stamp);
 
 A semaphore controls access to a shared resource through the use of a counter. If the counter is greater than zero, then access is allowed. If it is zero, then access is denied. What the counter is counting are permits that allow access to the shared resource. Thus, to access the resource, a thread must be granted a permit from the semaphore.
 
-Semaphore plays with a set of permits. Permit is taken and returned back by using two methods of Semaphore class. 
+Semaphore plays with a set of permits. Permit is taken and returned back by using two methods of Semaphore class.
 
-**acquire():** When a thread needs to access a resource, it acquires the permit from the Semaphore using acquire() method. If the permit is not available, it holds until one is available. 
+**acquire():** When a thread needs to access a resource, it acquires the permit from the Semaphore using acquire() method. If the permit is not available, it holds until one is available.
 
-**release():** Once the thread is finished using resource, it needs to return the permit. Using release() method of Semaphore, thread releases the permit back to Semaphore. 
+**release():** Once the thread is finished using resource, it needs to return the permit. Using release() method of Semaphore, thread releases the permit back to Semaphore.
 
-* Synchronized allows only one thread ∞of execution to access the resource at the same time. 
+* Synchronized allows only one thread ∞of execution to access the resource at the same time.
 * Semaphore allows up to n (you get to choose n) threads of execution to access the resource at the same time.
 * Semaphore locks can be acquire and released in different threads.
 

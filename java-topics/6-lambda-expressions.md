@@ -2,6 +2,73 @@
 
 Java lambda expressions are new in Java 8. Java lambda expressions are Java's first step into functional programming. A Java lambda expression is thus a function which can be created without belonging to any class. A Java lambda expression can be passed around as if it was an object and executed on demand.
 
+Lambda expression is a functional expression. All functional interfaces are recommended to have an informative @FunctionalInterface annotation. This not only clearly communicates the purpose of this interface, but also allows a compiler to generate an error if the annotated interface does not satisfy the conditions.
+
+Lambda Expression Examples:-
+```java
+
+() -> {}                     // No parameters; void result
+
+() -> 42                     // No parameters, expression body
+() -> null                   // No parameters, expression body
+() -> { return 42; }         // No parameters, block body with return
+() -> { System.gc(); }       // No parameters, void block body
+
+// Complex block body with multiple returns
+() -> {
+  if (true) return 10;
+  else {
+    int result = 15;
+    for (int i = 1; i < 10; i++)
+      result *= i;
+    return result;
+  }
+}                          
+
+(int x) -> x+1             // Single declared-type argument
+(int x) -> { return x+1; } // same as above
+(x) -> x+1                 // Single inferred-type argument, same as below
+x -> x+1                   // Parenthesis optional for single inferred-type case
+
+(String s) -> s.length()   // Single declared-type argument
+(Thread t) -> { t.start(); } // Single declared-type argument
+s -> s.length()              // Single inferred-type argument
+t -> { t.start(); }          // Single inferred-type argument
+
+(int x, int y) -> x+y      // Multiple declared-type parameters
+(x,y) -> x+y               // Multiple inferred-type parameters
+(x, final y) -> x+y        // Illegal: can't modify inferred-type parameters
+(x, int y) -> x+y          // Illegal: can't mix inferred and declared types
+
+```
+
+```java
+(Employee e) -> { return e.yearsOfExpr >= 7 ? "Expert" : e.yearsOfExpr >= 3 ? "Intermediet" : "Fresher"; }
+```
+Basically Lambda has 3 parts.
+
+* A list of parameters : In above example “Employee e”
+* Function body : The behavior (right hand side of arrow)
+* An arrow : Separator between parameter list and function body
+
+Lambda syntax follows some of the below rules.
+
+* Parameter types are optional.
+* If you have single parameter then both parameter type and parenthesis are optional.
+* If you have multiple parameters, then they should be enclosed with in parenthesis.
+* For multiple statements in function body should be enclosed with in courly braces.
+* If lambda body exnclosed inside courly braces then return keyward is required in case your behavior returns value.
+
+
+Method and Constructor References :-
+```java
+System::getProperty
+System.out::println
+"abc"::length
+ArrayList::new
+int[]::new
+```
+
 ## FunctionalInterface
 
 The term Java functional interface was introduced in Java 8. A functional interface in Java is an interface that contains only a single abstract (unimplemented) method. A functional interface can contain default and static methods which do have an implementation, in addition to the single unimplemented method.
@@ -135,7 +202,7 @@ If the method you are matching your lambda expression against takes no parameter
 
 When a lambda expression takes a single parameter, you can also omit the parentheses, like this:
 
- > param -> System.out.println("One parameter: " + param);
+> param -> System.out.println("One parameter: " + param);
 
 ### Multiple Parameters
 
@@ -151,79 +218,30 @@ Specifying parameter types for a lambda expression may sometimes be necessary if
 
 Ref: http://tutorials.jenkov.com/java/lambda-expressions.html
 
-## Built-in Functional Interfaces in Java
+## Accessing outer scope variables
+Some of the rules applicable for anonymous classes are also applicable to Lambdas:
 
-### Function
-
-The Java Function interface (java.util.function.Function) interface is one of the most central functional interfaces in Java. The Function interface represents a function (method) that takes a single parameter and returns a single value. Here is how the Function interface definition looks:
+* Lambda has access to members of its enclosing scope. (see line-1)
+* Like nested class or anonymous class, it can also shadows any other declarations in the enlosing scope that is of same name. (see line-2)
 
 ```java
-public interface Function<T,R> {
-    public <R> apply(T parameter);
+public class LambdaFeatures {
+    private int x = 10;
+
+    public void example() {
+        Consumer<String> funcInterface = str -> {
+            System.out.println("x= " + x);  // Line-1
+
+            int x = 50;                     // Line-2
+            System.out.println("x= " + x);
+        };
+    }
 }
+
+Output: x= 10
+        x= 50
 ```
 
-Sample implementation
-
-```java 
-Function<Integer, Integer> dbl = (v) -> v + v;
-dbl.apply(5); // Will return 10
-```
-
-## Predicate
-
-The Java Predicate interface, java.util.function.Predicate, represents a simple function that takes a single value as parameter, and returns true or false. Here is how the Predicate functional interface definition looks:
-
-```java
-public interface Predicate<T> {
-    boolean test(T t);
-}
-```
-
-Sample implementation
-
-```java
-Predicate predicate = (value) -> value != null;
-```
-
-## UnaryOperator
-
-The Java UnaryOperator interface is a functional interface that represents an operation which takes a single parameter and returns a parameter of the same type. Here is an example of a Java UnaryOperator implementation:
-
-```java
-@FunctionalInterface
-public interface UnaryOperator<T> {
- public <T> apply(T parameter);
-}
-```
-
-## BinaryOperator
-
-The Java BinaryOperator interface is a functional interface that represents an operation which takes two parameters and returns a single value. Both parameters and the return type must be of the same type.
-
-```java
-@FunctionalInterface
-public interface BinaryOperator<T, U, R> {
-    R apply(T t, U u);
-}
-```
-
-## Supplier
-
-The Java Supplier interface is a functional interface that represents an function that supplies a value of some sorts. The Supplier interface can also be thought of as a factory interface. Here is an example implementation of the Java Supplier interface:
-
-```java
-Supplier<Integer> supplier = () -> new Integer((int) (Math.random() * 1000D));
-```
-
-
-## Consumer
-
-The Java Consumer interface is a functional interface that represents an function that consumes a value without returning any value. A Java Consumer implementation could be printing out a value, or writing it to a file, or over the network etc. Here is an example implementation of the Java Consumer interface:
-
-```java
-Consumer<Integer> consumer = (value) -> System.out.println(value);
-```
 
 ## Why do variables in lambdas have to be final or effectively final?
 
@@ -243,7 +261,47 @@ Of these, the virtual and interface calls might serve the purposes of a dynamic 
 Like the other four invocation instructions invokedynamic is statically typed, however an invokedynamic instruction is dynamically linked under program control using a method handle.
 
 Given any method M that I am able to invoke, the JVM provides me a way to produce a method handle H(M). I can use this handle later on, even after forgetting the name of M, to call M as often as I want. Moreover, if I provide this handle to other callers, they also can invoke M through the handle, even if they do not have access rights to call M by name. If the method is non-static, the method handle always takes the receiver as its first argument. If the method is virtual or interface, the method handle performs the dispatch on the receiver.
- 
+
 
 A method handle will confess its type reflectively, as a series of Class values, through the type operation.
+
+## Restrictions in Lambdas
+Lambda has some restrictions:
+
+* You can’t declare any static or non-static initializers.
+* It cann’t access local variables in its enclosing scope that are not defined final or effectively final. This restriction exists with anonymous class also. Let’s discuss why is this limitation with following code snippet.
+
+```java
+public class LambdaFeatures {
+    int y = 50;
+
+    public static void main(String[] args) throws Exception {
+        int x = 50;
+
+        Thread tt = new Thread() {
+            public void run() {
+                System.out.println("MyThread start.");
+
+                Thread.sleep(1000L);
+
+                System.out.println("MyThread end. x=" + x);
+            }
+        };
+
+        t.start();
+
+        x++;
+        System.out.println("main end");
+    }
+}
+```
+Local variables stored in the stack where as instance variables stored in heap. In the above code snippet main thread declares variable “x” and also creates a Thread which is trying to use this x variable. As we know local variables will be stored in the local stack (here stack of main) and when thread “tt” will be created it will executed separate to main thread. There might be chances that main will be completed first and the stack will be released before thread tt trying to use it. So if variable is declared final, them lambda will a copy of it and use whenever require.
+
+## Where to use Lambdas
+We have discussed enough on lambdas and anonybmous classes. Let’s discuss the scenarios where should we use them.
+
+* Anonymous class: Use it whenever you want to declare some additional fields or methods which lambda cann’t do.
+* Lambda:
+    * Use it if you want to encapsulate a single unit of behavior and pass to some other code. For example: performing certain operation on each element of collection.
+    * Use it if you need a simple instance of a functional interface and none of the preceding criteria apply (for example, you do not need a constructor, a named type, fields, or additional methods).
 

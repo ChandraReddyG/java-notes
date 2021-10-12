@@ -17,7 +17,7 @@ The processing of the data set begins when a terminal operation is executed, suc
 
 It has three stages (Split, Apply & Combine)
 > Split : Split the datsource in independent chunks. It will done using Spliterators
-> 
+>
 
 # Streams versus collections
 

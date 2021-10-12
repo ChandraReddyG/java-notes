@@ -1,7 +1,7 @@
 # Executor Framework
 > Executor, a simple interface that supports launching new tasks.
 
-> ExecutorService, a subinterface of Executor, which adds features that help manage the lifecycle, both of the individual tasks and of  the executor itself.
+> ExecutorService, a subinterface of Executor, which adds features that help manage the lifecycle, both of the individual tasks and of the executor itself.
 
 > ScheduledExecutorService, a subinterface of ExecutorService, supports future and/or periodic execution of tasks.
 
@@ -48,6 +48,7 @@ public void execute() {
     });
 }
 ```
+
 However, the definition of execute is less specific. The low-level idiom creates a new thread and launches it immediately. Depending on the Executor implementation, execute may do the same thing, but is more likely to use an existing worker thread to run r, or to place r in a queue to wait for a worker thread to become available. (We'll describe worker threads in the section on Thread Pools.)
 
 The executor implementations in java.util.concurrent are designed to make full use of the more advanced ExecutorService and ScheduledExecutorService interfaces, although they also work with the base Executor interface.
@@ -203,9 +204,10 @@ public class WaitingWorker implements Runnable {
     }
 }
 ```
+
 Now, let’s modify our test so it blocks until all the Workers have started, unblocks the Workers, and then blocks until the Workers have finished:
 
-```
+```java
 @Test
 public void whenDoingLotsOfThreadsInParallel_thenStartThemAtTheSameTime()
  throws InterruptedException {
@@ -239,6 +241,7 @@ public void whenDoingLotsOfThreadsInParallel_thenStartThemAtTheSameTime()
       );
 }
 ```
+
 This pattern is really useful for trying to reproduce concurrency bugs, as can be used to force thousands of threads to try and perform some logic in parallel.
 
 ## Terminating a CountdownLatch Early
@@ -279,7 +282,7 @@ assertThat(completed).isFalse();
 # CyclicBarrier
 The java.util.concurrent.CyclicBarrier class is a synchronization mechanism that can synchronize threads progressing through some algorithm. In other words, it is a barrier that all threads must wait at, until all threads reach it, before any of the threads can continue. Here is a diagram illustrating that:
 
-![cyclic-barrier.png](cyclic-barrier.png)
+![cyclic-barrier.png](images/cyclic-barrier.png)
 
 ## Creating a CyclicBarrier
 When you create a CyclicBarrier you specify how many threads are to wait at it, before releasing them. Here is how you create a CyclicBarrier:
@@ -377,4 +380,3 @@ BarrierAction 2 executed
 Thread-0 done!
 Thread-1 done!
 ```
-

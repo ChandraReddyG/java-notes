@@ -43,7 +43,7 @@ public interface Foo {
 }
 ```
 
-The java.util.function contains general purpose functional interfaces used by JDK and also available for end users like us. While they are not the complete set of funtional interfaces to which lambda expressions might be applicable, but they provide enough to cover common requirements. You are free to create your own functional interfaces whenever existing set are not enough.The interfaces defined in the this package are annotated with FunctionalInterface. 
+The java.util.function contains general purpose functional interfaces used by JDK and also available for end users like us. While they are not the complete set of funtional interfaces to which lambda expressions might be applicable, but they provide enough to cover common requirements. You are free to create your own functional interfaces whenever existing set are not enough.The interfaces defined in the this package are annotated with FunctionalInterface.
 
 @FunctionalInterface is a runtime annotation that is used to verify the interface follows all of the rules that can make this interface as functional interface. Below are some of the rules from them:
 
@@ -95,34 +95,34 @@ Here if you see `filter` method accepts a Predicate which is calling its test() 
 It has couple of default methods which you can use it:
 
 .. list-table::
-   :widths: 25 35 40
-   :header-rows: 1
+:widths: 25 35 40
+:header-rows: 1
 
-   * - Method
-     - Description
-     - Example
+* - Method
+- Description
+- Example
 
-   * - and(Predicate<? super T> other) 
-     - Returns a composite predicate that represents logical AND of two predicates (P1 AND P2)
-     - Predicate<Integer> positiveOdd = positiveNums.and(oddNums)
+* - and(Predicate<? super T> other)
+- Returns a composite predicate that represents logical AND of two predicates (P1 AND P2)
+- Predicate<Integer> positiveOdd = positiveNums.and(oddNums)
 
-   * - or(Predicate<? super T> other)
-     - Returns a composite predicate that represents logical OR of two predicates (P1 OR P2)
-     - Predicate<Integer> positiveOrOdd = positiveNums.or(oddNums)
+* - or(Predicate<? super T> other)
+- Returns a composite predicate that represents logical OR of two predicates (P1 OR P2)
+- Predicate<Integer> positiveOrOdd = positiveNums.or(oddNums)
 
-   * - negate()
-     - Returns a predicate that represents the logical negation of this predicate.
-     - Predicate<Integer> negative = positiveNums.negate();
-	
+* - negate()
+- Returns a predicate that represents the logical negation of this predicate.
+- Predicate<Integer> negative = positiveNums.negate();
+
 
 
 Consumer<T>
 -----------
 `java.util.function.Consumer <http://docs.oracle.com/javase/8/docs/api/java/util/function/Consumer.html>`_ accepts an argument and returns no result.
 
-+----------------------------------------+ 
-|     Class definition                   | 
-+========================================+ 
++----------------------------------------+
+|     Class definition                   |
++========================================+
 |  public interface Consumer<T> {        |
 |                                        |
 |    void accept(T t);                   |
@@ -165,9 +165,9 @@ Function<T, R>
 --------------
 `java.util.function.Function <http://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html>`_ accepts an argument and returns result.
 
-+----------------------------------------+ 
-|     Class definition                   | 
-+========================================+ 
++----------------------------------------+
+|     Class definition                   |
++========================================+
 |  public interface Function<T, R> {     |
 |                                        |
 |    R apply(T t);                       |
@@ -201,20 +201,20 @@ A usecase of `Function` can be extracting employee name from Employee class or d
 `Function` has couple of default and static methods:
 
 .. list-table::
-   :widths: 35 65
-   :header-rows: 1
+:widths: 35 65
+:header-rows: 1
 
-   * - Method
-     - Description
+* - Method
+- Description
 
-   * - compose(Function<? super V, ? extends T> before) 
-     - Returns a composed function that first applies the before function to its input, and then applies this function to the result.
+* - compose(Function<? super V, ? extends T> before)
+- Returns a composed function that first applies the before function to its input, and then applies this function to the result.
 
-   * - andThen(Function<? super R, ? extends V> after)
-     - Returns a composed function that first applies this function to its input, and then applies the after function to the result.
+* - andThen(Function<? super R, ? extends V> after)
+- Returns a composed function that first applies this function to its input, and then applies the after function to the result.
 
-   * - static <T> Function<T, T> identity()
-     - Returns a function that always returns its input argument. Basically it is a helper method that used in Collector implementation that we will look later.
+* - static <T> Function<T, T> identity()
+- Returns a function that always returns its input argument. Basically it is a helper method that used in Collector implementation that we will look later.
 
 Below code snippet shows an example of composed function ``andThen()``.
 
@@ -235,32 +235,32 @@ Below code snippet shows an example of composed function ``andThen()``.
             return first.andThen(second).apply(input);
         }
     }
-	
-It has two subclasses whose type of operand and return types are of same type.
-	
-- **UnaryOperator<T>:**
-	This represents an operation on a single operand that produces a result of the same type as its operand. The simple usecase could be calculating square of a number.
 
-	*Function descriptor signature:* ``T apply(T t)``
-	
-	*Example:* UnaryOperator<Integer> square = (Integer in) -> in * in;
+It has two subclasses whose type of operand and return types are of same type.
+
+- **UnaryOperator<T>:**
+  This represents an operation on a single operand that produces a result of the same type as its operand. The simple usecase could be calculating square of a number.
+
+  *Function descriptor signature:* ``T apply(T t)``
+
+  *Example:* UnaryOperator<Integer> square = (Integer in) -> in * in;
 
 
 - **BinaryOperator<T>:**
-	This represents an operation upon two operands of the same type, producing a result of the same type as the operands. The simple usecase could be calculating sum of two numbers.
+  This represents an operation upon two operands of the same type, producing a result of the same type as the operands. The simple usecase could be calculating sum of two numbers.
 
-	*Function descriptor signature:* ``T apply(T t1, T t2)``
-	
-	*Example:* BinaryOperator<Integer> sum = (i1, i2) -> i1 + i2;
+  *Function descriptor signature:* ``T apply(T t1, T t2)``
 
-	
+  *Example:* BinaryOperator<Integer> sum = (i1, i2) -> i1 + i2;
+
+
 Supplier<T>
 -----------
 `java.util.function.Supplier <http://docs.oracle.com/javase/8/docs/api/java/util/function/Supplier.html>`_ doesn't accept any argument but returns a result.
 
-+------------------------------------+ 
-|     Class definition               | 
-+====================================+ 
++------------------------------------+
+|     Class definition               |
++====================================+
 |  public interface Supplier<R> {    |
 |                                    |
 |    R get();                        |
@@ -354,7 +354,7 @@ Java8 shiped with bundle of primitive functional interfaces that deals with only
 
 
 .. note:: There are little caveats in above rules:
-	
+
 	- In case of `Supplier`, XXX type returns primitive type because Supplier doesn't accept any input.
 	
 	- ToXXX and XXXToYYY are only applicable to them who returns something. Functional interfaces like `Predicate` doesn't have flavours of ToIntPredicate or LongToDoublePredicate because its return type is always boolean.
@@ -374,37 +374,37 @@ Though java8 talks about removing boiler-plate codes, there is an efficient way 
 Above is the syntax for creating method references where the target reference will be placed before the delimeter **::** and then the name of method. There are three different cases where method references can be applied.
 
 - Reference to static method:
-    ``Consumer<List<Integer>> c = Collections::sort;`` is an example of method reference for static methods. Compiler will automatically consider it as ``(list) -> Collections.sort(list)``. Here the target type will be the class name that contains the static method.
+  ``Consumer<List<Integer>> c = Collections::sort;`` is an example of method reference for static methods. Compiler will automatically consider it as ``(list) -> Collections.sort(list)``. Here the target type will be the class name that contains the static method.
 
 - Reference to an instance method of a particular object:
-	If you have an object reference then you can call its method like ``list::add`` which is very similar to ``(list, ele) -> list.add(ele)``. Here the target type will be object reference.
+  If you have an object reference then you can call its method like ``list::add`` which is very similar to ``(list, ele) -> list.add(ele)``. Here the target type will be object reference.
 
 - Reference to an instance method of an arbitrary object of a particular type:
-	This type of method references are little confusing. If you look into the previous example ``String::length``, usually length() method is called on a string reference but we have written class name "String" as like it is a static method. When we use method references they also go through similar checks as lambda expression goes. Compiler will try to match the method reference with any of functional descriptor syntax and if matches then passes on.
+  This type of method references are little confusing. If you look into the previous example ``String::length``, usually length() method is called on a string reference but we have written class name "String" as like it is a static method. When we use method references they also go through similar checks as lambda expression goes. Compiler will try to match the method reference with any of functional descriptor syntax and if matches then passes on.
 
 Below table shows some of method references and equal lambda expressions.
 
 .. list-table::
-   :widths: 25 75
-   :header-rows: 1
+:widths: 25 75
+:header-rows: 1
 
-   * - Method Reference
-     - Equivalent lambda expression
+* - Method Reference
+- Equivalent lambda expression
 
-   * - Integer::parseInt 
-     - ToIntFunction<String> f = (str) -> Integer.parseInt(str)
-	 
-   * - Collections::sort
-     - BiConsumer<List, Comparator<Trade>> f = (list, comp) -> Collections.sort(list, comp)
+* - Integer::parseInt
+- ToIntFunction<String> f = (str) -> Integer.parseInt(str)
 
-   * - String::toUpperCase
-     - UnaryOperator<String> f = (str) -> str.toUpperCase()
+* - Collections::sort
+- BiConsumer<List, Comparator<Trade>> f = (list, comp) -> Collections.sort(list, comp)
 
-   * - UUID::randomUUID
-     - Supplier<UUID> f = () -> UUID.randomUUID()
-	 
-   * - empDao::getEmployee
-     - Function<String, Employee> f = (empid) -> empDao.getEmployee(empid)
+* - String::toUpperCase
+- UnaryOperator<String> f = (str) -> str.toUpperCase()
+
+* - UUID::randomUUID
+- Supplier<UUID> f = () -> UUID.randomUUID()
+
+* - empDao::getEmployee
+- Function<String, Employee> f = (empid) -> empDao.getEmployee(empid)
 
 
 .. important::  There are two things you should be aware of before writing method references.
@@ -418,22 +418,22 @@ Constructor as method reference
 As you know constructors are kind of special methods, method reference will also applicable to constructors. Syntax of method reference for constructor is same as static method. Below are some of examples of method references for constructors.
 
 .. list-table::
-   :widths: 20 80
-   :header-rows: 1
+:widths: 20 80
+:header-rows: 1
 
-   * - Constructor Type
-     - Lambda Representation
+* - Constructor Type
+- Lambda Representation
 
-   * - Zero-argument 
-     - Supplier<Employee> s = () -> new Employee()
-	 
-   * - One-argument
-     - Function<String,Employee> f = (id) -> new Employee(id)
+* - Zero-argument
+- Supplier<Employee> s = () -> new Employee()
 
-   * - Two-argument
-     - BiFunction<String, String> f = (id, name) -> new Employee(id, name)
+* - One-argument
+- Function<String,Employee> f = (id) -> new Employee(id)
 
-	 
+* - Two-argument
+- BiFunction<String, String> f = (id, name) -> new Employee(id, name)
+
+
 In the above examples you can clearly see, lambda expression of invoking zero argument constructor matches with functional descriptor of Supplier, similarly one-argument constructors matches to Function and two argument is with BiFunction.
 
 **Syntax:** ClassName **::** new
@@ -443,8 +443,7 @@ In the above examples you can clearly see, lambda expression of invoking zero ar
 The constructor reference for all the above lambdas are ``Employee::new`` and type of the constructor invocation will be decided based on the target type.
 To understand it better we will see a usecase whose goal is to return a collection of unique ids but the collection type will be supplied as method argument.
 
-.. code:: java
-
+```java
     public class ConstructorReference {
     
         public static void main(String[] args) {
@@ -459,3 +458,29 @@ To understand it better we will see a usecase whose goal is to return a collecti
             return c;
         }
     }
+```
+
+## Accessing outer scope variables
+Some of the rules applicable for anonymous classes are also applicable to Lambdas:
+
+* Lambda has access to members of its enclosing scope. (see line-1)
+* Like nested class or anonymous class, it can also shadows any other declarations in the enlosing scope that is of same name. (see line-2)
+
+```java
+public class LambdaFeatures {
+    private int x = 10;
+
+    public void example() {
+        Consumer<String> funcInterface = str -> {
+            System.out.println("x= " + x);  // Line-1
+
+            int x = 50;                     // Line-2
+            System.out.println("x= " + x);
+        };
+    }
+}
+```
+```
+Output: x= 10
+        x= 50
+```

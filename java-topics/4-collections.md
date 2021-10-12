@@ -16,7 +16,7 @@ List is an ordered collection, and its elements can be accessed by their index i
 
 **Map** interface is also a part of the collection framework, yet it does not extend Collection. This is by design, to stress the difference between collections and mappings which are hard to gather under a common abstraction. The Map interface represents a key-value data structure with unique keys and no more than one value for each key.
 
- ![java-collection-heirarchy.png](images/java-collection-heirarchy.png)
+![java-collection-heirarchy.png](images/java-collection-heirarchy.png)
 
 ## Describe Various Implementations of the Map Interface and Their Use Case Differences
 
@@ -34,7 +34,7 @@ The Hashtable class has been in Java since version 1.0. It is not deprecated but
 
 This diagram is seems to be similar to the internal implementation of HashMap, but Hashtable is synchronized and provides thread safety like concurrentHashMap but in the performance point of view,Hashtable write operation uses map wide lock which means it locks the complete map object.
 
- ![hashtable-internal.png](images/hashtable-internal.png)
+![hashtable-internal.png](images/hashtable-internal.png)
 
 Example for better understanding
 
@@ -42,13 +42,13 @@ Thread T1 calls get()/put() operation on Hashtable and acquires the lock on comp
 
 Now if Thread T2 calls get()/put() operation, It has to wait till T1 finishes get()/put() operation and releases the lock on the object.
 
- ![hashtable-internal-1.png](images/hashtable-internal-1.png)
+![hashtable-internal-1.png](images/hashtable-internal-1.png)
 
- ConcurrentHashMap works a bit different as it acquires lock per Segment which means instead of single map wide lock, it has multiple Segment level locks. it uses a Locking technique name ReentrantLock
+ConcurrentHashMap works a bit different as it acquires lock per Segment which means instead of single map wide lock, it has multiple Segment level locks. it uses a Locking technique name ReentrantLock
 
- ![concurrent-hashmap.png](images/concurrent-hashmap.png)
+![concurrent-hashmap.png](images/concurrent-hashmap.png)
 
- So 2 Threads operating on different segments can acquire lock on those segments without interfering with each other and can proceed simultaneously as they are working on separate Segment locks.
+So 2 Threads operating on different segments can acquire lock on those segments without interfering with each other and can proceed simultaneously as they are working on separate Segment locks.
 
 Simultaneous Read and Write operations by Multiple Threads on same or different segments of ConcurrentHashMap
 
@@ -62,7 +62,7 @@ Read-Write Operation :- Two threads can read and write data on different segment
 
 In general, Retrieval operations do not block, so may overlap with write (put/remove) operations. Latest updated value will be returned by get operation which is most recently updated value by write operation (including put/remove).
 
- ![concurrent-hashmap-1.png](images/concurrent-hashmap-1.png)
+![concurrent-hashmap-1.png](images/concurrent-hashmap-1.png)
 
 Thread T1 calls concurrentHashMap.put(key, value), It acquires lock on say Segment 1and invokes put method.
 
@@ -72,7 +72,7 @@ Thread T2 calls concurrentHashMap.put(key, value), It acquires lock on say Segme
 
 If we give concurrency level or initialCapacity = 10 and it will consider concurrency level or initialCapacity as 16 ( next 2 to the power x is 16)
 
- ![concurrent-hashmap-2.png](images/concurrent-hashmap-2.png)
+![concurrent-hashmap-2.png](images/concurrent-hashmap-2.png)
 
 **PUT:**
 
@@ -122,21 +122,21 @@ HashMap contains a certain number of buckets. It uses hashCode to determine whic
 
 If our hashcode is 123456 and we have 4 buckets, 123456 % 4 = 0 so the item goes in the first bucket, Bucket 1.
 
- ![hashmap-1.png](images/hashmap-1.png)
+![hashmap-1.png](images/hashmap-1.png)
 
 If our hashCode function is good, it should provide an even distribution so that all the buckets will be used somewhat equally. In this case, the bucket uses a linked list to store the values.
 
- ![hashmap-2.png](images/hashmap-2.png)
+![hashmap-2.png](images/hashmap-2.png)
 
 But you can't rely on people to implement good hash functions. People will often write poor hash functions which will result in a non-even distribution. It's also possible that we could just get unlucky with our inputs.
 
- ![hashmap-3.png](images/hashmap-3.png)
+![hashmap-3.png](images/hashmap-3.png)
 
 The less even this distribution is, the further we're moving from O(1) operations and the closer we're moving towards O(n) operations.
 
 The implementation of HashMap tries to mitigate this by organising some buckets into trees rather than linked lists if the buckets become too large. This is what TREEIFY_THRESHOLD = 8 is for. If a bucket contains more than eight items, it should become a tree.
 
- ![hashmap-4.png](images/hashmap-4.png)
+![hashmap-4.png](images/hashmap-4.png)
 
 This tree is a Red-Black tree, presumably chosen because it offers some worst-case guarantees. It is first sorted by hash code. If the hash codes are the same, it uses the compareTo method of Comparable if the objects implement that interface, else the identity hash code.
 

@@ -17,6 +17,65 @@ Components of the JVM are:
 
 Initial tasks of the JVM includes loading, verifying and linking the bytecode. Class loaders handle these tasks.
 
+Java provides a dynamic load feature; it loads and links the class when it refers to a class for the first time at runtime, not compile time. JVM's class loader executes the dynamic load. The features of Java class loader are as follows:
+
+* Hierarchical Structure: Class loaders in Java are organized into a hierarchy with a parent-child relationship. The Bootstrap Class Loader is the parent of all class loaders.
+* Delegation mode: Based on the hierarchical structure, load is delegated between class loaders. When a class is loaded, the parent class loader is checked to determine whether or not the class is in the parent class loader. If the upper class loader has the class, the class is used. If not, the class loader requested for loading loads the class.
+* Visibility limit: A child class loader can find the class in the parent class loader; however, a parent class loader cannot find the class in the child class loader.
+* Unload is not allowed: A class loader can load a class but cannot unload it. Instead of unloading, the current class loader can be deleted, and a new class loader can be created.
+
+Each class loader has its namespace that stores the loaded classes. When a class loader loads a class, it searches the class based on FQCN (Fully Qualified Class Name) stored in the namespace to check whether or not the class has been already loaded. Even if the class has an identical FQCN but a different namespace, it is regarded as a different class. A different namespace means that the class has been loaded by another class loader.
+
+![class-loader.png](images/class-loader.png)
+
+When a class loader is requested for class load, it checks whether or not the class exists in the class loader cache, the parent class loader, and itself, in the order listed. In short, it checks whether or not the class has been loaded in the class loader cache. If not, it checks the parent class loader. If the class is not found in the bootstrap class loader, the requested class loader searches for the class in the file system.
+
+* Bootstrap class loader: This is created when running the JVM. It loads Java APIs, including object classes. Unlike other class loaders, it is implemented in native code instead of Java.
+* Extension class loader: It loads the extension classes excluding the basic Java APIs. It also loads various security extension functions.
+* System class loader: If the bootstrap class loader and the extension class loader load the JVM components, the system   class loader loads the application classes. It loads the class in the $CLASSPATH specified by the user.
+* User-defined class loader: This is a class loader that an application user directly creates on the code.
+
+### Class Loading Stages
+
+![class-loading-stage.png](images/class-loading-stage.png)
+
+* Loading: A class is obtained from a file and loaded to the JVM memory.
+* Verifying: Check whether or not the read class is configured as described in the Java Language Specification and JVM specifications. This is the most complicated test process of the class load processes, and takes the longest time. Most cases of the JVM TCK test cases are to test whether or not a verification error occurs by loading wrong classes.
+* Preparing: Prepare a data structure that assigns the memory required by classes and indicates the fields, methods, and interfaces defined in the class.
+* Resolving: Change all symbolic references in the constant pool of the class to direct references.
+  Initializing: Initialize the class variables to proper values. Execute the static initializers and initialize the static fields to the configured values.
+
+# Execution Engine
+
+The bytecode that is assigned to the runtime data areas in the JVM via class loader is executed by the execution engine. The execution engine reads the Java Bytecode in the unit of instruction. It is like a CPU executing the machine command one by one. Each command of the bytecode consists of a 1-byte OpCode and additional Operand. The execution engine gets one OpCode and execute task with the Operand, and then executes the next OpCode.
+
+But the Java Bytecode is written in a language that a human can understand, rather than in the language that the machine directly executes. Therefore, the execution engine must change the bytecode to the language that can be executed by the machine in the JVM. The bytecode can be changed to the suitable language in one of two ways.
+
+* Interpreter: Reads, interprets and executes the bytecode instructions one by one. As it interprets and executes instructions one by one, it can quickly interpret one bytecode, but slowly executes the interpreted result. This is the disadvantage of the interpret language. The 'language' called Bytecode basically runs like an interpreter.
+* JIT (Just-In-Time) compiler: The JIT compiler has been introduced to compensate for the disadvantages of the interpreter. The execution engine runs as an interpreter first, and at the appropriate time, the JIT compiler compiles the entire bytecode to change it to native code. After that, the execution engine no longer interprets the method, but directly executes using native code. Execution in native code is much faster than interpreting instructions one by one. The compiled code can be executed quickly since the native code is stored in the cache.
+
+However, it takes more time for JIT compiler to compile the code than for the interpreter to interpret the code one by one. Therefore, if the code is to be executed just once, it is better to interpret it instead of compiling. Therefore, the JVMs that use the JIT compiler internally check how frequently the method is executed and compile the method only when the frequency is higher than a certain level.
+
+![compiler-jit](images/compiler-jit.png)
+
+How the execution engine runs is not defined in the JVM specifications. Therefore, JVM vendors improve their execution engines using various techniques, and introduce various types of JIT compilers.
+
+Most JIT compilers run as shown in the figure below:
+
+![jit-compiler](images/jit-compiler.png)
+
+The JIT compiler converts the bytecode to an intermediate-level expression, IR (Intermediate Representation), to execute optimization, and then converts the expression to native code.
+
+Oracle Hotspot VM uses a JIT compiler called Hotspot Compiler. It is called Hotspot because Hotspot Compiler searches the 'Hotspot' that requires compiling with the highest priority through profiling, and then it compiles the hotspot to native code. If the method that has the bytecode compiled is no longer frequently invoked, in other words, if the method is not the hotspot any more, the Hotspot VM removes the native code from the cache and runs in interpreter mode. The Hotspot VM is divided into the Server VM and the Client VM, and the two VMs use different JIT compilers.
+
+![hotspot-vm](images/hotspot-vm.png)
+
+The client VM and the server VM use an identical runtime; however, they use different JIT compilers, as shown in the above figure. The client VM and the server VM use an identical runtime, however, they use different JIT compilers as shown in the above figure. Advanced Dynamic Optimizing Compiler used by the server VM uses more complex and diverse performance optimization techniques.
+
+IBM JVM has introduced AOT (Ahead-Of-Time) Compiler from IBM JDK 6 as well as the JIT compiler. This means that many JVMs share the native code compiled through the shared cache. In short, the code that has been already compiled through the AOT compiler can be used by another JVM without compiling. In addition, IBM JVM provides a fast way of execution by pre-compiling code to JXE (Java EXecutable) file format using the AOT compiler.
+
+
+
 ### Run-Time Data Areas
 
 The JVM defines various memory areas to execute a Java program. These are used during runtime and are known as run-time data areas. Some of these areas are created on the JVM start-up and destroyed when the JVM exits while some are created when a thread is created and destroyed when a thread exits.
@@ -30,6 +89,64 @@ The method area, also known as permanent generation space (PermGen), is created 
 *PermGen space is replaced by MetaSpace in Java 8.*
 
 The PermSize and MaxPermSize JVM arguments are ignored and a warning is issued if present at start-up. Most allocations for the class metadata are now allocated out of native memory. * The classes that were used to describe class metadata have been removed.
+
+# Metaspace: A new memory space is born
+The JDK 8 HotSpot JVM is now using native memory for the representation of class metadata and is called Metaspace; similar to the Oracle JRockit and IBM JVM's.
+
+The good news is that it means no more java.lang.OutOfMemoryError: PermGen space problems and no need for you to tune and monitor this memory space anymore…not so fast. While this change is invisible by default, we will show you next that you will still need to worry about the class metadata memory footprint. Please also keep in mind that this new feature does not magically eliminate class and classloader memory leaks. You will need to track down these problems using a different approach and by learning the new naming convention.
+
+* PermGen space situation
+  * This memory space is completely removed.
+  * The PermSize and MaxPermSize JVM arguments are ignored and a warning is issued if present at start-up.
+
+* Metaspace memory allocation model
+  * Most allocations for the class metadata are now allocated out of native memory.
+  * The klasses that were used to describe class metadata have been removed.
+
+* Metaspace capacity
+  * By default class metadata allocation is limited by the amount of available native memory (capacity will of course depend if you use a 32-bit JVM vs. 64-bit along with OS virtual memory availability).
+  * A new flag is available (MaxMetaspaceSize), allowing you to limit the amount of native memory used for class metadata. If you don’t specify this flag, the Metaspace will dynamically re-size depending of the application demand at runtime.
+
+* Metaspace garbage collection
+  * Garbage collection of the dead classes and classloaders is triggered once the class metadata usage reaches the “MaxMetaspaceSize”.
+  * Proper monitoring & tuning of the Metaspace will obviously be required in order to limit the frequency or delay of such garbage collections. Excessive Metaspace garbage collections may be a symptom of classes, classloaders memory leak or inadequate sizing for your application.
+
+* Java heap space impact
+  * Some miscellaneous data has been moved to the Java heap space. This means you may observe an increase of the Java heap space following a future JDK 8 upgrade.
+
+* Metaspace monitoring
+  * Metaspace usage is available from the HotSpot 1.8 verbose GC log output.
+  * Jstat & JVisualVM have not been updated at this point based on our testing with b75 and the old PermGen space references are still present.
+
+In order to better understand the runtime behavior of the new Metaspace memory space, we created a class metadata leaking Java program
+
+* The following scenarios will be tested:
+  * Run the Java program using JDK 1.7 in order to monitor & deplete the PermGen memory space set at 128 MB.
+  * Run the Java program using JDK 1.8 (b75) in order to monitor the dynamic increase and garbage collection of the new Metaspace memory space.
+  * Run the Java program using JDK 1.8 (b75) in order to simulate the depletion of the Metaspace by setting the MaxMetaspaceSize value at 128 MB.
+
+* JDK 1.7 @64-bit – PermGen depletion
+  * Java program with 50K configured iterations
+  * Java heap space of 1024 MB
+  * Java PermGen space of 128 MB (-XX:MaxPermSize=128m)
+
+![perm-gen-jdk17.png](images/perm-gen-jdk17.png)
+
+* JDK 1.8 @64-bit – Metaspace dynamic re-size
+  * Java program with 50K configured iterations
+  * Java heap space of 1024 MB
+  * Java Metaspace space: unbounded (default)
+
+![metaspace-increase-jdk18.png](images/metaspace-increase-jdk18.png)
+
+* JDK 1.8 @64-bit – Metaspace depletion
+  * Java program with 50K configured iterations
+  * Java heap space of 1024 MB
+  * Java Metaspace space: 128 MB (-XX:MaxMetaspaceSize=128m)
+
+![metaspace-depletion-jdk18.png](images/metaspace-depletion-jdk18.png)
+
+Ref: https://dzone.com/articles/java-8-permgen-metaspace
 
 ## What is Automatic Garbage Collection?
 
@@ -257,7 +374,7 @@ The heap memory has three portions:
 * Eden Space – it’s a part of Young Generation space. When we create an object, the JVM allocates memory from this space
 * Survivor Space – it’s also a part of Young Generation space. Survivor space contains existing objects which have  
   survived the minor GC phases of GC
-* Tenured Space – this is also known as the Old Generation space. It holds long surviving objects. Basically, a threshold 
+* Tenured Space – this is also known as the Old Generation space. It holds long surviving objects. Basically, a threshold
   is set for Young Generation objects and when this threshold is met, these objects are moved to tenured space.
 
 JVM creates heap area as soon as it starts up. All the threads of the JVM share this area. The memory for the heap area does not need to be contiguous.
@@ -273,7 +390,7 @@ Each entry in the stack is called Stack Frame or Activation record. Each frame c
 
 * Local Variable Array – contains all the local variables and parameters of the method
 * Operand Stack – used as a workspace for storing intermediate calculation’s result
-* Frame Data – used to store partial results, return values for methods, and reference to the Exception table which 
+* Frame Data – used to store partial results, return values for methods, and reference to the Exception table which
   provides corresponding catch block information in case of exceptions
 
 ### PC Registers
@@ -417,9 +534,9 @@ It's very common for a large application to face out of memory error which, in t
 
 That's why JVM comes with some parameters which dump heap memory into a physical file which can be used later for finding out leaks:
 
-* -XX:+HeapDumpOnOutOfMemoryError 
+* -XX:+HeapDumpOnOutOfMemoryError
 * -XX:HeapDumpPath=./java_pid<pid>.hprof
-* -XX:OnOutOfMemoryError="< cmd args >;< cmd args >" 
+* -XX:OnOutOfMemoryError="< cmd args >;< cmd args >"
 * -XX:+UseGCOverheadLimit
 
 A couple of points to note here:
@@ -468,7 +585,7 @@ Java follows object oriented approach, as a result it consists of classes. These
 * JIT compilation requires processor time and memory usage. When the java virtual machine first starts up, thousands of methods are invoked. Compiling all these methods can significantly affect startup time, even if the end result is a very good performance optimization.
 
 
-Ref: 
+Ref:
 * https://www.eclipse.org/openj9/docs/jit/
 * https://www.geeksforgeeks.org/just-in-time-compiler/
 * https://www.youtube.com/watch?v=sJVenujWGjs
@@ -492,4 +609,3 @@ This produces the library jaotCompilation.so in the current directory.
 > java -XX:AOTLibrary=./jaotCompilation.so JaotCompilation
 
 The argument -XX:AOTLibrary accepts a relative or full path to the library. Alternatively, we can copy the library to the lib folder in the Java home directory and only pass the name of the library.
-
