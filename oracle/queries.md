@@ -331,3 +331,32 @@ SELECT ix.owner, ix.index_name, ix.table_name,
             AND ix.index_name = s.segment_name
     ORDER BY ix.table_name, ix.index_name
 ```
+
+## To Generate execution Plan
+Alter Session Set statistics_level=ALL -- gather plan statistics -- Other values TYPICAL (Default), BASIC
+select * from table(dbms_xplan.display_cursor(NULL,NULL,'ALLSTATS LAST')) -- Run some query and run this query to get execution plan
+
+select * from table(dbms_xplan.display_cursor(NULL,NULL,'ALLSTATS LAST +ADAPTIVE')) -- from 12 adaptive plans has been added to oracle
+
+Plan Hash value - identifier for plan execution identifier (If there are different execution plans for same sql this value will be different but sqlId will be same)
+
+
+## Performance Views
+
+select * from v$database; - Active session all information related to database
+select * from v$version;
+select * from v$instance; -- Instance and database is different
+
+select * from gv$database; - Global sessions
+select * from gv$version;
+select * from gv$instance; -- Instance and database is different
+
+
+## ASH (Active Session History) & AWR (Automatic Work Repository)
+
+
+## Session Monitor 
+
+select * from gv$session -- information about current session. What is going at the moment.
+
+select * from gv$active_session_history; -- Only active session
