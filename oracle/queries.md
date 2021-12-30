@@ -360,3 +360,40 @@ select * from gv$instance; -- Instance and database is different
 select * from gv$session -- information about current session. What is going at the moment.
 
 select * from gv$active_session_history; -- Only active session
+
+## Find the session history if it is present in AWR
+select * from gv$dba_hist_Active_sess_history;
+
+## IDENITIFY ROW LOC
+
+ select
+   c.owner,
+   c.object_name,
+   c.object_type,
+   b.sid,
+   b.serial#,
+   b.status,
+   b.osuser,
+   b.machine
+from
+   gv$locked_object a ,
+   gv$session b,
+   dba_objects c
+where
+   b.sid = a.session_id
+and
+   a.object_id = c.object_id;
+   
+   ## Active transactions
+   select t.inst_id 
+       ,s.sid
+      ,s.serial#
+      ,s.username
+      ,s.machine
+      ,s.status
+      ,s.lockwait
+      ,t.used_ublk
+      ,t.used_urec
+      ,t.start_time
+from gv$transaction t
+inner join gv$session s on t.addr = s.taddr;
