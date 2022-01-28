@@ -7,6 +7,9 @@ npm install -g @angular/cli@latest
 ## Create Angular Project
 ng new sample-app
 
+### new app new sa prefix [The prefix to apply to generated]
+ng new sample-app -prefix sa
+
 ## Start development server
 ng serve
 
