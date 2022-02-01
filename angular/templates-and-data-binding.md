@@ -284,3 +284,6 @@ The $event variable contains the data of the SizerComponent.sizeChange event. An
 Example:
 
 https://stackblitz.com/angular/qkknqlpxybjm?file=src%2Fapp%2Fapp.component.html
+
+## Different Data binding
+![event-binding.svg](images/data-binding-difference.png)
